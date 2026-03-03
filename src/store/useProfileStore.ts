@@ -15,6 +15,7 @@ const defaultProfile: UserProfile = {
   weeksPregnant: 24,
   dueDate: '',
   healthConditions: '',
+  dueDateSet: false,
 };
 
 export const useProfileStore = create<ProfileState>((set, get) => ({

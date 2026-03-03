@@ -47,6 +47,10 @@ export async function setOnboardingDone(): Promise<void> {
   await storage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
 }
 
+export async function resetOnboarding(): Promise<void> {
+  await storage.removeItem(STORAGE_KEYS.ONBOARDING_DONE);
+}
+
 export async function getStoredReminders(): Promise<string | null> {
   return storage.getItem(STORAGE_KEYS.REMINDERS);
 }
