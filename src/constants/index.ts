@@ -5,6 +5,8 @@ export const STORAGE_KEYS = {
   REMINDERS: '@wunally/reminders',
   EMERGENCY_CONTACTS: '@wunally/emergency_contacts',
   CHAT_HISTORY: '@wunally/chat_history',
+  MOOD_ENTRIES: '@wunally/mood_entries',
+  CARE_PLAN_NOTES: '@wunally/care_plan_notes',
 } as const;
 
 export const nutritionTipsSidebar = [

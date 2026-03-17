@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography } from '../theme';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { RemindersScreen } from '../screens/RemindersScreen';
+import { HealthSupportScreen } from '../screens/HealthSupportScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import type { MainTabParamList } from './types';
 
@@ -58,8 +59,7 @@ export function MainTabs() {
         component={DashboardScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            // Using house + pregnant emoji to suggest "baby at home"
-            <TabIconLabel label="Home" focused={focused} icon="🏠🤰" />
+            <TabIconLabel label="Home" focused={focused} icon="🏠" />
           ),
         }}
       />
@@ -68,7 +68,16 @@ export function MainTabs() {
         component={RemindersScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Reminders" focused={focused} icon="🔔" />
+            <TabIconLabel label="Alerts" focused={focused} icon="🔔" />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="HealthSupport"
+        component={HealthSupportScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIconLabel label="Health" focused={focused} icon="❤️" />
           ),
         }}
       />

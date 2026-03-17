@@ -66,3 +66,19 @@ export async function getEmergencyContacts(): Promise<string | null> {
 export async function setEmergencyContacts(json: string): Promise<void> {
   await storage.setItem(STORAGE_KEYS.EMERGENCY_CONTACTS, json);
 }
+
+export async function getCarePlanNotes(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.CARE_PLAN_NOTES);
+}
+
+export async function setCarePlanNotes(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.CARE_PLAN_NOTES, json);
+}
+
+export async function getMoodEntries(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.MOOD_ENTRIES);
+}
+
+export async function setMoodEntries(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.MOOD_ENTRIES, json);
+}

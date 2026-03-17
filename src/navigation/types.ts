@@ -3,6 +3,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 export type MainTabParamList = {
   Home: undefined;
   Reminders: undefined;
+  HealthSupport: undefined;
   Profile: undefined;
 };
 

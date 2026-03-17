@@ -16,7 +16,18 @@ export function ScreenHeader({ title, showBack = true }: ScreenHeaderProps) {
       {showBack ? (
         <TouchableOpacity
           style={styles.backBtn}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            if (navigation.canGoBack && navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              // fall back to main screen if no back available
+              try {
+                navigation.navigate('Main');
+              } catch {
+                // ignore if navigation doesn't support it
+              }
+            }
+          }}
           accessible
           accessibilityLabel="Go back"
           accessibilityRole="button"

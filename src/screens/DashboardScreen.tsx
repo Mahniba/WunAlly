@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, WeekProgress, FloatingSOSButton, FloatingVoiceButton } from '../components';
+import MoodSummary from '../components/MoodSummary';
 import { useSidebar } from '../context/SidebarContext';
 import { useProfileStore } from '../store';
 import { getWeekInfo } from '../utils/weekData';
@@ -131,6 +132,7 @@ export function DashboardScreen() {
             </View>
           ))}
         </View>
+        <MoodSummary />
       </ScrollView>
       <FloatingVoiceButton onPress={() => parent?.navigate('Chat')} />
       <FloatingSOSButton onPress={() => parent?.navigate('SOS')} />
