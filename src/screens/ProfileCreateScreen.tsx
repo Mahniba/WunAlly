@@ -29,9 +29,11 @@ export function ProfileCreateScreen({ navigation }: any) {
     profile.healthConditions = healthConditions.trim();
     setProfile(profile);
     await persist();
-    // After saving profile, navigate to main app
-    navigation.navigate('Main');
+    // After saving profile, prompt user to add emergency contacts
+    setShowContactsPrompt(true);
   };
+
+  const [showContactsPrompt, setShowContactsPrompt] = React.useState(false);
 
   // Determine week number from input or infer from selected due date
   function computeWeekFromDueDate(d: Date) {
@@ -171,6 +173,23 @@ export function ProfileCreateScreen({ navigation }: any) {
           onPress={handleStart}
           style={styles.button}
         />
+        {/* Prompt modal to add emergency contacts */}
+        {showContactsPrompt && (
+          <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.2, elevation: 8 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Add emergency contacts?</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 16 }}>Would you like to add emergency contacts now so we can reach your support person if needed?</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
+                <TouchableOpacity onPress={() => { setShowContactsPrompt(false); navigation.navigate('Main'); }} style={{ padding: 10 }}>
+                  <Text style={{ color: colors.textSecondary }}>Later</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { setShowContactsPrompt(false); navigation.navigate('EmergencyContacts'); }} style={{ padding: 10 }}>
+                  <Text style={{ color: colors.lavenderDark, fontWeight: '700' }}>Add Now</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </ScreenContainer>
   );

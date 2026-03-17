@@ -58,3 +58,11 @@ export async function getStoredReminders(): Promise<string | null> {
 export async function setStoredReminders(json: string): Promise<void> {
   await storage.setItem(STORAGE_KEYS.REMINDERS, json);
 }
+
+export async function getEmergencyContacts(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.EMERGENCY_CONTACTS);
+}
+
+export async function setEmergencyContacts(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.EMERGENCY_CONTACTS, json);
+}

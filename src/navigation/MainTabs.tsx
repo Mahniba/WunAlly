@@ -58,7 +58,8 @@ export function MainTabs() {
         component={DashboardScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Home" focused={focused} icon="♥" />
+            // Using house + pregnant emoji to suggest "baby at home"
+            <TabIconLabel label="Home" focused={focused} icon="🏠🤰" />
           ),
         }}
       />

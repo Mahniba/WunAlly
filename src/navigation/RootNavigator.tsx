@@ -16,6 +16,7 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { SignUpScreen } from '../screens/SignUpScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { VerificationScreen } from '../screens/VerificationScreen';
+import { EmergencyContactsScreen } from '../screens/EmergencyContactsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -62,6 +63,7 @@ export function RootNavigator() {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="Verification" component={VerificationScreen} />
       <Stack.Screen name="ProfileCreate" component={ProfileCreateScreen} />
+      <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="Tracking" component={TrackingScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />

@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   USER_PROFILE: '@wunally/profile',
   ONBOARDING_DONE: '@wunally/onboarding_done',
   REMINDERS: '@wunally/reminders',
+  EMERGENCY_CONTACTS: '@wunally/emergency_contacts',
   CHAT_HISTORY: '@wunally/chat_history',
 } as const;
 

@@ -20,7 +20,7 @@ export function FloatingVoiceButton({ onPress }: FloatingVoiceButtonProps) {
       accessibilityRole="button"
       accessibilityLabel="Voice support"
     >
-      <Text style={styles.icon}>🎤</Text>
+      <Text style={styles.icon}>⏺️</Text>
     </TouchableOpacity>
   );
 }

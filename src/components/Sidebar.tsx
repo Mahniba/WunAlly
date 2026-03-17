@@ -13,6 +13,7 @@ type MenuItem = { label: string; screen: string };
 const MENU_ITEMS: MenuItem[] = [
   { label: 'Profile', screen: 'Profile' },
   { label: 'Care Plan Notes', screen: 'CarePlanNotes' },
+  { label: 'Emergency Contacts', screen: 'EmergencyContacts' },
   { label: 'Privacy', screen: 'Privacy' },
   { label: 'Log Out', screen: 'Logout' },
 ];
