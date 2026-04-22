@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ScreenContainer, Card, SecondaryButton } from '../components';
+import { ScreenContainer, Card, SecondaryButton, SymptomsSettings, SymptomsChart } from '../components';
 import { useProfileStore } from '../store';
 import { WeekProgress } from '../components';
 import { getWeekInfo } from '../utils/weekData';
@@ -12,6 +12,7 @@ export function ProfileScreen() {
   const navigation = useNavigation();
   const profile = useProfileStore((s) => s.profile);
   const { s, font, horizontalPadding } = useResponsive();
+  const [showSettings, setShowSettings] = useState(false);
 
   const styles = StyleSheet.create({
     header: { paddingHorizontal: horizontalPadding, paddingTop: s(16), paddingBottom: s(8) },
@@ -25,6 +26,7 @@ export function ProfileScreen() {
     label: { fontSize: font(typography.sizes.sm), color: colors.textSecondary, marginTop: s(12) },
     value: { fontSize: font(typography.sizes.base), color: colors.textPrimary, marginBottom: s(4) },
     btn: { marginTop: s(16) },
+    smallBtn: { marginTop: s(10) },
   });
 
   return (
@@ -98,6 +100,14 @@ export function ProfileScreen() {
           style={styles.btn}
         />
         <SecondaryButton
+          title="Symptom Settings"
+          onPress={() => setShowSettings(true)}
+          style={styles.smallBtn}
+        />
+        <Card style={{ marginTop: 12 }}>
+          <SymptomsChart days={14} />
+        </Card>
+        <SecondaryButton
           title="Chat & Support"
           onPress={() => navigation.navigate('ChatSupport')}
           style={styles.btn}
@@ -108,6 +118,7 @@ export function ProfileScreen() {
           style={styles.btn}
         />
       </ScrollView>
+      <SymptomsSettings visible={showSettings} onClose={() => setShowSettings(false)} />
     </ScreenContainer>
   );
 }

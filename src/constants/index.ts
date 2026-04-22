@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   CHAT_HISTORY: '@wunally/chat_history',
   MOOD_ENTRIES: '@wunally/mood_entries',
   CARE_PLAN_NOTES: '@wunally/care_plan_notes',
+  SYMPTOM_ENTRIES: '@wunally/symptom_entries',
+  SYMPTOM_REMINDER_TIME: '@wunally/symptom_reminder_time',
 } as const;
 
 export const nutritionTipsSidebar = [

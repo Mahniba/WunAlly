@@ -82,3 +82,19 @@ export async function getMoodEntries(): Promise<string | null> {
 export async function setMoodEntries(json: string): Promise<void> {
   await storage.setItem(STORAGE_KEYS.MOOD_ENTRIES, json);
 }
+
+export async function getSymptomEntries(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.SYMPTOM_ENTRIES);
+}
+
+export async function setSymptomEntries(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.SYMPTOM_ENTRIES, json);
+}
+
+export async function getSymptomReminderTime(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.SYMPTOM_REMINDER_TIME);
+}
+
+export async function setSymptomReminderTime(value: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.SYMPTOM_REMINDER_TIME, value);
+}
