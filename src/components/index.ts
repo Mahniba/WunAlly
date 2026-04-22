@@ -10,3 +10,7 @@ export { FloatingSOSButton } from './FloatingSOSButton';
 export { FloatingVoiceButton } from './FloatingVoiceButton';
 export { ScreenHeader } from './ScreenHeader';
 export { Sidebar } from './Sidebar';
+export { SymptomsCheck } from './SymptomsCheck';
+export { SymptomsChart } from './SymptomsChart';
+export { DoctorAlert } from './DoctorAlert';
+export { SymptomsSettings } from './SymptomsSettings';

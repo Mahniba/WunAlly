@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Pressable } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSidebar } from '../context/SidebarContext';
+import { useAuthStore } from '../store';
 import { colors, typography } from '../theme';
 
 const SIDEBAR_WIDTH = 260;
@@ -11,20 +12,29 @@ type MenuItem = { label: string; screen: string };
 
 const MENU_ITEMS: MenuItem[] = [
   { label: 'Profile', screen: 'Profile' },
-  { label: 'Care Plan Notes', screen: 'CarePlanNotes' },
+  { label: 'Emergency Contacts', screen: 'EmergencyContacts' },
   { label: 'Privacy', screen: 'Privacy' },
+  { label: 'Log Out', screen: 'Logout' },
 ];
 
 export function Sidebar() {
   const { isOpen, closeSidebar } = useSidebar();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { logout } = useAuthStore();
 
-  const handleItem = (screen: string) => {
+  const handleItem = async (screen: string) => {
     closeSidebar();
     const nav = navigation as { navigate: (name: string, params?: object) => void };
     if (screen === 'Profile') {
       nav.navigate('Main', { screen: 'Profile' });
+    } else if (screen === 'Logout') {
+      try {
+        await logout();
+      } catch (e) {
+        console.error('Logout failed', e);
+      }
+      nav.navigate('Login');
     } else {
       nav.navigate(screen);
     }

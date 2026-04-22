@@ -3,17 +3,15 @@
  * Red reserved for SOS only.
  */
 export const colors = {
-  // Primary palette
-  coral: '#E8A598',
-  coralDark: '#D4897A',
-  lavender: '#B8A9C9',
-  lavenderDark: '#9B8BB0',
-  softPink: '#F5E6E8',
+  // Primary palette — brand: peach & white
+  peach: '#FFC9A3',
+  peachDark: '#FFB089',
+  softPink: '#FFF1EE',
   softPurple: '#E8E0F0',
 
-  // Backgrounds
-  background: '#FDF8F9',
-  backgroundSecondary: '#F5EFF1',
+  // Backgrounds (brand prefers white)
+  background: '#FFFFFF',
+  backgroundSecondary: '#FFF8F6',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
 
@@ -30,11 +28,11 @@ export const colors = {
   sos: '#C0392B',
 
   // Chips / accents (dashboard action cards)
-  chipTrack: '#E8D4D8',
-  chipChat: '#D4E4F0',
-  chipReminders: '#F0E4D4',
-  /** Orange for Reminders action card */
-  accentOrange: '#E8A87A',
+  chipTrack: '#FFF0E8',
+  chipChat: '#F8F4FF',
+  chipReminders: '#FFF4EB',
+  /** Peach accent for actions */
+  accentPeach: '#FFC9A3',
 } as const;
 
 export type Colors = typeof colors;

@@ -47,10 +47,54 @@ export async function setOnboardingDone(): Promise<void> {
   await storage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
 }
 
+export async function resetOnboarding(): Promise<void> {
+  await storage.removeItem(STORAGE_KEYS.ONBOARDING_DONE);
+}
+
 export async function getStoredReminders(): Promise<string | null> {
   return storage.getItem(STORAGE_KEYS.REMINDERS);
 }
 
 export async function setStoredReminders(json: string): Promise<void> {
   await storage.setItem(STORAGE_KEYS.REMINDERS, json);
+}
+
+export async function getEmergencyContacts(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.EMERGENCY_CONTACTS);
+}
+
+export async function setEmergencyContacts(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.EMERGENCY_CONTACTS, json);
+}
+
+export async function getCarePlanNotes(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.CARE_PLAN_NOTES);
+}
+
+export async function setCarePlanNotes(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.CARE_PLAN_NOTES, json);
+}
+
+export async function getMoodEntries(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.MOOD_ENTRIES);
+}
+
+export async function setMoodEntries(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.MOOD_ENTRIES, json);
+}
+
+export async function getSymptomEntries(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.SYMPTOM_ENTRIES);
+}
+
+export async function setSymptomEntries(json: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.SYMPTOM_ENTRIES, json);
+}
+
+export async function getSymptomReminderTime(): Promise<string | null> {
+  return storage.getItem(STORAGE_KEYS.SYMPTOM_REMINDER_TIME);
+}
+
+export async function setSymptomReminderTime(value: string): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.SYMPTOM_REMINDER_TIME, value);
 }

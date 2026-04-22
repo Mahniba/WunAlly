@@ -1,16 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { ScreenContainer, PrimaryButton } from '../components';
 import { useOnboardingStore } from '../store';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
-export function OnboardingScreen() {
+export function OnboardingScreen({ navigation }: any) {
   const complete = useOnboardingStore((s) => s.complete);
   const { s, sVertical, font } = useResponsive();
+  const [loading, setLoading] = useState(false);
 
   const handleStart = async () => {
-    await complete();
+    try {
+      setLoading(true);
+      await complete();
+      // Navigate to SignUp now that onboarding is complete
+      navigation.navigate('SignUp');
+    } catch (e) {
+      console.error('Onboarding complete failed', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = StyleSheet.create({
@@ -20,16 +30,11 @@ export function OnboardingScreen() {
       alignItems: 'center',
       paddingHorizontal: s(24),
     },
-    logoWrap: {
-      width: s(120),
-      height: s(120),
-      borderRadius: s(60),
-      backgroundColor: colors.softPurple,
-      justifyContent: 'center',
-      alignItems: 'center',
+    heroImage: {
+      width: '100%',
+      height: s(200),
       marginBottom: sVertical(32),
     },
-    logoIcon: { fontSize: font(56), color: colors.lavenderDark },
     title: {
       fontSize: font(typography.sizes.title),
       fontWeight: typography.weights.bold,
@@ -49,11 +54,19 @@ export function OnboardingScreen() {
   return (
     <ScreenContainer>
       <View style={styles.content}>
-        <View style={styles.logoWrap}>
-          <Text style={styles.logoIcon}>♥</Text>
-        </View>
+        {/*
+          Optional: swap the placeholder below with a real asset
+          (e.g. assets/images/onboarding.png) showing a pregnant
+          woman holding her belly.
+        */}
+        <Image
+          source={require('../../assets/images/onboarding.png')}
+          style={styles.heroImage}
+          resizeMode="contain"
+        />
+
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
-          Pregnancy Companion
+          WunAlly
         </Text>
         <Text style={styles.tagline} allowFontScaling maxFontSizeMultiplier={1.3}>
           Your journey, supported every step of the way.
@@ -61,6 +74,7 @@ export function OnboardingScreen() {
         <PrimaryButton
           title="Start My Journey"
           onPress={handleStart}
+          loading={loading}
           style={styles.button}
         />
       </View>

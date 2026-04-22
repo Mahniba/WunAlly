@@ -9,3 +9,8 @@ export { ChatSupportScreen } from './ChatSupportScreen';
 export { CarePlanNotesScreen } from './CarePlanNotesScreen';
 export { SOSScreen } from './SOSScreen';
 export { PrivacyScreen } from './PrivacyScreen';
+export { EmergencyContactsScreen } from './EmergencyContactsScreen';
+export { LoginScreen } from './LoginScreen';
+export { SignUpScreen } from './SignUpScreen';
+export { ForgotPasswordScreen } from './ForgotPasswordScreen';
+export { VerificationScreen } from './VerificationScreen';

@@ -76,3 +76,30 @@ export function getTrimesterLabel(t: 'first' | 'second' | 'third'): string {
 export function getAllWeeks(): number[] {
   return Array.from({ length: 42 }, (_, i) => i + 1);
 }
+
+export function getAfricanFruitForWeek(week: number): { label: string; emoji: string; artKey?: string } {
+  const w = Math.max(1, Math.min(42, Math.floor(week)));
+  const map: Record<number, { label: string; emoji: string; artKey?: string }> = {
+    1: { label: 'a tiny seed', emoji: '🌱', artKey: 'yam' },
+    4: { label: 'a grain of millet', emoji: '🌾', artKey: 'yam' },
+    10: { label: 'a small mango', emoji: '🥭', artKey: 'mango' },
+    15: { label: 'an avocado', emoji: '🥑', artKey: 'mango' },
+    20: { label: 'a banana', emoji: '🍌', artKey: 'banana' },
+    22: { label: 'a pawpaw (papaya)', emoji: '🥭', artKey: 'mango' },
+    24: { label: 'an ear of corn', emoji: '🌽', artKey: 'yam' },
+    28: { label: 'a coconut', emoji: '🥥', artKey: 'coconut' },
+    31: { label: 'a coconut', emoji: '🥥', artKey: 'coconut' },
+    33: { label: 'a pineapple', emoji: '🍍', artKey: 'mango' },
+    36: { label: 'a big yam', emoji: '🍠', artKey: 'yam' },
+    39: { label: 'a mini watermelon', emoji: '🍉', artKey: 'watermelon' },
+    40: { label: 'a watermelon', emoji: '🍉', artKey: 'watermelon' },
+    42: { label: 'ready to meet you', emoji: '👶', artKey: 'pregnant' },
+  };
+
+  const keys = Object.keys(map).map((k) => parseInt(k, 10)).sort((a, b) => a - b);
+  let chosen = map[1];
+  for (const k of keys) {
+    if (w >= k) chosen = map[k];
+  }
+  return chosen;
+}

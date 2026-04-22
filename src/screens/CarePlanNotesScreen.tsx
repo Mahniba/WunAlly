@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
-import { ScreenContainer, ScreenHeader } from '../components';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { ScreenContainer, ScreenHeader, PrimaryButton } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
@@ -8,6 +8,23 @@ export function CarePlanNotesScreen() {
   const { s, font, horizontalPadding } = useResponsive();
   const [medical, setMedical] = useState('');
   const [labourPrefs, setLabourPrefs] = useState('');
+  
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const raw = await (await import('../services/storage')).getCarePlanNotes();
+        if (mounted && raw) {
+          const parsed = JSON.parse(raw);
+          setMedical(parsed.medical || '');
+          setLabourPrefs(parsed.labourPrefs || '');
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -70,6 +87,20 @@ export function CarePlanNotesScreen() {
           />
         </View>
       </ScrollView>
+      <View style={{ paddingHorizontal: horizontalPadding, paddingBottom: s(18) }}>
+        <PrimaryButton
+          title="Save"
+          onPress={async () => {
+            try {
+              const payload = JSON.stringify({ medical, labourPrefs });
+              await (await import('../services/storage')).setCarePlanNotes(payload);
+              Alert.alert('Saved', 'Your care plan notes have been saved.');
+            } catch (e) {
+              Alert.alert('Error', 'Unable to save notes.');
+            }
+          }}
+        />
+      </View>
     </ScreenContainer>
   );
 }

@@ -132,7 +132,7 @@ export function ChatScreen() {
       </ScrollView>
       {isVoiceListening && (
         <View style={styles.voiceBanner}>
-          <Text style={styles.voiceBannerText}>🎤 Listening... Talk to AI</Text>
+          <Text style={styles.voiceBannerText}>⏺️ Listening... Talk to AI</Text>
         </View>
       )}
       <View style={styles.inputRow}>
@@ -152,7 +152,7 @@ export function ChatScreen() {
             onPress={handleVoice}
             accessibilityLabel="Talk to AI"
           >
-            <Text style={styles.inputMicText}>🎤</Text>
+            <Text style={styles.inputMicText}>⏺️</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity
@@ -163,7 +163,7 @@ export function ChatScreen() {
           accessible
           accessibilityLabel="Talk to AI"
         >
-          <Text style={styles.voiceFabIcon}>{isVoiceListening ? '...' : '🎤'}</Text>
+          <Text style={styles.voiceFabIcon}>{isVoiceListening ? '...' : '⏺️'}</Text>
           <Text style={styles.talkLabel}>Talk</Text>
         </TouchableOpacity>
       </View>

@@ -12,7 +12,14 @@ export function SOSScreen() {
 
   const handleSend = () => {
     setSent(true);
-    setTimeout(() => navigation.goBack(), 2000);
+    setTimeout(() => {
+      try {
+        if (navigation.canGoBack && navigation.canGoBack()) navigation.goBack();
+        else navigation.navigate('Main');
+      } catch {
+        // ignore
+      }
+    }, 2000);
   };
 
   const size = Math.min(s(240), 280);

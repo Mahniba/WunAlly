@@ -4,6 +4,7 @@ export interface UserProfile {
   weeksPregnant: number;
   dueDate: string;
   healthConditions: string;
+  dueDateSet?: boolean;
 }
 
 export interface Reminder {

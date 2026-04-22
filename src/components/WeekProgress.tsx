@@ -2,6 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card } from './Card';
 import { colors, typography, spacing } from '../theme';
+import { getAfricanFruitForWeek } from '../utils/weekData';
+import BananaSvg from './art/BananaSvg';
+import WatermelonSvg from './art/WatermelonSvg';
+import MangoSvg from './art/MangoSvg';
+import CoconutSvg from './art/CoconutSvg';
+import YamSvg from './art/YamSvg';
+import PregnantIllustration from './art/PregnantIllustration';
 
 interface WeekProgressProps {
   week: number;
@@ -14,6 +21,15 @@ export function WeekProgress({
   babySizeDescription,
   illustration,
 }: WeekProgressProps) {
+  const fruit = getAfricanFruitForWeek(week);
+  const artMap: Record<string, React.ReactNode> = {
+    banana: <BananaSvg size={56} />,
+    watermelon: <WatermelonSvg size={56} />,
+    mango: <MangoSvg size={56} />,
+    coconut: <CoconutSvg size={56} />,
+    yam: <YamSvg size={56} />,
+    pregnant: <PregnantIllustration size={56} />,
+  };
   return (
     <Card>
       <View style={styles.header}>
@@ -23,10 +39,10 @@ export function WeekProgress({
       </View>
       <View style={styles.content}>
         <View style={styles.illustration}>
-          {illustration ?? <Text style={styles.illustrationPlaceholder}>🌽</Text>}
+          {illustration ?? (fruit.artKey ? artMap[fruit.artKey] ?? <Text style={styles.illustrationPlaceholder}>{fruit.emoji}</Text> : <Text style={styles.illustrationPlaceholder}>{fruit.emoji}</Text>)}
         </View>
         <Text style={styles.description} allowFontScaling>
-          Your baby is as big as {babySizeDescription}.
+          Your baby is as big as {fruit.label}.
         </Text>
       </View>
     </Card>
