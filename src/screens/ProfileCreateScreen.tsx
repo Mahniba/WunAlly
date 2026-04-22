@@ -53,7 +53,7 @@ export function ProfileCreateScreen({ navigation }: any) {
 
   const weekInfo = weekNum ? getWeekInfo(weekNum) : null;
 
-  const weeksLeft = Math.max(0, 40 - weekNum);
+  const weeksLeft = Math.max(0, 40 - (weekNum ?? 40));
   const tentativeDate = (() => {
     const d = new Date();
     d.setDate(d.getDate() + weeksLeft * 7);

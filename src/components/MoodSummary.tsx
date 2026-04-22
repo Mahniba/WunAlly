@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useMoodStore, MoodType } from '../store/useMoodStore';
+import { useProfileStore } from '../store/useProfileStore';
 import { colors, typography } from '../theme';
 import PregnantIllustration from './art/PregnantIllustration';
 
@@ -12,17 +14,19 @@ try {
 } catch {}
 
 const MOODS: { key: MoodType; label: string; emoji: string; color: string }[] = [
-  { key: 'happy', label: 'Happy', emoji: '😊', color: '#4CAF50' },
-  { key: 'ok', label: 'Okay', emoji: '🙂', color: '#2196F3' },
-  { key: 'tired', label: 'Tired', emoji: '😴', color: '#FFB300' },
-  { key: 'sleepy', label: 'Sleepy', emoji: '💤', color: '#8E24AA' },
-  { key: 'confused', label: 'Confused', emoji: '😕', color: '#FF7043' },
-  { key: 'sad', label: 'Sad', emoji: '😢', color: '#1565C0' },
-  { key: 'anxious', label: 'Anxious', emoji: '😰', color: '#E53935' },
-  { key: 'stressed', label: 'Stressed', emoji: '😣', color: '#6D4C41' },
+  { key: 'happy', label: 'Happy', emoji: '😊', color: colors.moodHappy },
+  { key: 'ok', label: 'Okay', emoji: '🙂', color: colors.moodOk },
+  { key: 'tired', label: 'Tired', emoji: '😴', color: colors.moodTired },
+  { key: 'sleepy', label: 'Sleepy', emoji: '💤', color: colors.moodSleepy },
+  { key: 'confused', label: 'Confused', emoji: '😕', color: colors.moodConfused },
+  { key: 'sad', label: 'Sad', emoji: '😢', color: colors.moodSad },
+  { key: 'anxious', label: 'Anxious', emoji: '😰', color: colors.moodAnxious },
+  { key: 'stressed', label: 'Stressed', emoji: '😣', color: colors.moodStressed },
 ];
 
 export function MoodSummary() {
+  const navigation = useNavigation<any>();
+  const profile = useProfileStore((s) => s.profile);
   const entries = useMoodStore((s) => s.entries);
   const hydrate = useMoodStore((s) => s.hydrate);
   const addEntry = useMoodStore((s) => s.addEntry);
@@ -41,7 +45,13 @@ export function MoodSummary() {
     return map;
   }, [entries]);
 
-  const pieData = MOODS.map((m) => ({ name: m.label, population: freq.get(m.key) || 0, color: m.color, legendFontColor: '#333', legendFontSize: 12 }));
+  const pieData = MOODS.map((m) => ({
+    name: m.label,
+    population: freq.get(m.key) || 0,
+    color: m.color,
+    legendFontColor: colors.textSecondary,
+    legendFontSize: 12,
+  }));
 
   // Prepare daily series for last 14 days
   const DAYS = 14;
@@ -124,7 +134,13 @@ export function MoodSummary() {
       if (e.timestamp >= start) pieMap.set(e.mood, (pieMap.get(e.mood) || 0) + 1);
     }
 
-    const pie = MOODS.map((m) => ({ name: m.label, population: pieMap.get(m.key) || 0, color: m.color, legendFontColor: '#333', legendFontSize: 12 }));
+    const pie = MOODS.map((m) => ({
+      name: m.label,
+      population: pieMap.get(m.key) || 0,
+      color: m.color,
+      legendFontColor: colors.textSecondary,
+      legendFontSize: 12,
+    }));
 
     return { pieFiltered: pie, labels: lbls, series: buckets };
   }, [entries, range]);
@@ -151,7 +167,13 @@ export function MoodSummary() {
         })}
       </View>
 
-      <TextInput value={note} onChangeText={setNote} placeholder="Add a note (optional)..." style={styles.noteInput} />
+      <TextInput
+        value={note}
+        onChangeText={setNote}
+        placeholder="Add a note (optional)..."
+        placeholderTextColor={colors.textMuted}
+        style={styles.noteInput}
+      />
       <TouchableOpacity style={styles.saveBtn} onPress={saveMood} accessibilityLabel="Save Mood">
         <Text style={styles.saveBtnText}>Save Mood</Text>
       </TouchableOpacity>
@@ -179,7 +201,12 @@ export function MoodSummary() {
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.supportBtn} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.supportBtn}
+          onPress={() => navigation.navigate('Tracking', { week: profile?.weeksPregnant ?? 24 })}
+          accessibilityRole="button"
+          accessibilityLabel="Get tips and support"
+        >
           <Text style={styles.supportText}>Get Tips & Support</Text>
         </TouchableOpacity>
       </View>
@@ -200,10 +227,33 @@ export function MoodSummary() {
         {ChartKit ? (
           <>
             <Text style={styles.chartTitle}>Most Frequent (Pie)</Text>
-            <ChartKit.PieChart data={pieFiltered.filter((d: any) => d.population > 0)} width={screenWidth} height={160} chartConfig={{ color: () => '#333' }} accessor="population" backgroundColor="transparent" paddingLeft="15" />
+            <ChartKit.PieChart
+              data={pieFiltered.filter((d: any) => d.population > 0)}
+              width={screenWidth}
+              height={160}
+              chartConfig={{
+                color: () => colors.textSecondary,
+              }}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="15"
+            />
 
             <Text style={styles.chartTitle}>Recent Mood Changes</Text>
-            <ChartKit.LineChart data={{ labels, datasets: [{ data: series }] }} width={screenWidth} height={140} chartConfig={{ backgroundGradientFrom: '#fff', backgroundGradientTo: '#fff', color: (opacity = 1) => `rgba(33,150,243,${opacity})` }} bezier />
+            <ChartKit.LineChart
+              data={{ labels, datasets: [{ data: series }] }}
+              width={screenWidth}
+              height={140}
+              chartConfig={{
+                backgroundGradientFrom: colors.surface,
+                backgroundGradientTo: colors.surface,
+                color: (opacity = 1) => {
+                  // Use a calm lavender-based stroke instead of bright primary blue.
+                  return `rgba(107,95,166,${opacity})`;
+                },
+              }}
+              bezier
+            />
           </>
         ) : (
           <View style={styles.fallback}>
@@ -224,26 +274,34 @@ const styles = StyleSheet.create({
   moodEmojiLarge: { fontSize: 24 },
   moodLabel: { color: '#fff', marginTop: 4, fontSize: 11 },
   moodLabelActive: { color: '#333' },
-  noteInput: { borderWidth: 1, borderColor: '#e6e6e6', padding: 10, borderRadius: 8, marginTop: 8, backgroundColor: '#fff' },
-  saveBtn: { marginTop: 10, backgroundColor: '#ff8a65', paddingVertical: 12, borderRadius: 24, alignItems: 'center' },
+  noteInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 8,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+  },
+  saveBtn: { marginTop: 10, backgroundColor: colors.coral, paddingVertical: 12, borderRadius: 24, alignItems: 'center' },
   saveBtnText: { color: '#fff', fontWeight: '700' },
-  trendsWrap: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 },
+  trendsWrap: { marginTop: 16, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
   trendsTitle: { fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 },
   trendRow: { flexDirection: 'row', alignItems: 'center' },
-  illustrationBox: { width: 96, height: 96, backgroundColor: '#fff', borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  illustrationBox: { width: 96, height: 96, backgroundColor: colors.surface, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   trendRight: { flex: 1 },
   weekEmojisRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   dayEmoji: { fontSize: 18 },
   countList: { marginTop: 6 },
   countItem: { fontSize: 14, color: colors.textSecondary, marginBottom: 4 },
-  supportBtn: { marginTop: 12, backgroundColor: '#3CB371', paddingVertical: 10, borderRadius: 20, alignItems: 'center' },
+  supportBtn: { marginTop: 12, backgroundColor: colors.lavenderDark, paddingVertical: 10, borderRadius: 20, alignItems: 'center' },
   supportText: { color: '#fff', fontWeight: '700' },
-  rangeBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, backgroundColor: '#f2f2f2', marginHorizontal: 6 },
-  rangeActive: { backgroundColor: '#ff8a65' },
-  rangeText: { color: '#333', fontWeight: '600' },
+  rangeBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, backgroundColor: colors.backgroundSecondary, marginHorizontal: 6 },
+  rangeActive: { backgroundColor: colors.coral },
+  rangeText: { color: colors.textPrimary, fontWeight: '600' },
   chartTitle: { marginTop: 12, fontSize: 14, color: colors.textSecondary },
-  fallback: { padding: 12, backgroundColor: '#fff3cd', borderRadius: 8, marginTop: 8 },
-  fallbackText: { color: '#8a6d3b' },
+  fallback: { padding: 12, backgroundColor: colors.chipReminders, borderRadius: 8, marginTop: 8 },
+  fallbackText: { color: colors.textSecondary },
 });
 
 export default MoodSummary;

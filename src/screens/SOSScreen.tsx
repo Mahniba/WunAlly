@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Linking, Share } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as Location from 'expo-location';
 import { ScreenContainer, ScreenHeader } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
+import type { RootStackParamList } from '../navigation/types';
+import { useContactsStore } from '../store/useContactsStore';
 
 export function SOSScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [sent, setSent] = useState(false);
   const { s, font, horizontalPadding } = useResponsive();
+  const contacts = useContactsStore((s2) => s2.contacts);
+  const hydrateContacts = useContactsStore((s2) => s2.hydrate);
+
+  React.useEffect(() => {
+    hydrateContacts();
+  }, [hydrateContacts]);
 
   const handleSend = () => {
     setSent(true);
@@ -105,19 +115,69 @@ export function SOSScreen() {
               <Text style={styles.sosButtonText}>SEND SOS{'\n'}ALERT</Text>
             </TouchableOpacity>
             <View style={styles.options}>
-              <TouchableOpacity style={styles.optionCard} activeOpacity={0.8}>
+              <TouchableOpacity
+                style={styles.optionCard}
+                activeOpacity={0.8}
+                onPress={async () => {
+                  try {
+                    const perm = await Location.requestForegroundPermissionsAsync();
+                    if (perm.status !== 'granted') {
+                      Alert.alert('Location permission needed', 'Please enable location permission to share your location.');
+                      return;
+                    }
+                    const pos = await Location.getCurrentPositionAsync({
+                      accuracy: Location.Accuracy.Balanced,
+                    });
+                    const { latitude, longitude } = pos.coords;
+                    const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
+                    await Share.share({
+                      message: `My current location: ${mapsUrl}`,
+                    });
+                  } catch (e) {
+                    Alert.alert('Could not get location', 'Please try again.');
+                  }
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Share my location"
+              >
                 <View style={styles.optionLeft}>
                   <Text style={styles.optionIcon}>📍</Text>
                   <Text style={styles.optionLabel}>Share Location</Text>
                 </View>
                 <Text style={styles.optionArrow}>›</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.optionCard} activeOpacity={0.8}>
+              <TouchableOpacity
+                style={styles.optionCard}
+                activeOpacity={0.8}
+                onPress={async () => {
+                  const first = contacts[0];
+                  if (!first?.phone) {
+                    Alert.alert(
+                      'No emergency contact',
+                      'Add an emergency contact first.',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Add Contact', onPress: () => navigation.navigate('EmergencyContacts') },
+                      ],
+                    );
+                    return;
+                  }
+                  const tel = `tel:${first.phone}`;
+                  const can = await Linking.canOpenURL(tel);
+                  if (!can) {
+                    Alert.alert('Cannot place call', 'Calling is not available on this device.');
+                    return;
+                  }
+                  Linking.openURL(tel);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Call for help"
+              >
                 <View style={styles.optionLeft}>
                   <Text style={styles.optionIcon}>📞</Text>
                   <Text style={styles.optionLabel}>Call for Help</Text>
                 </View>
-                <Text style={styles.optionArrow}>▼</Text>
+                <Text style={styles.optionArrow}>›</Text>
               </TouchableOpacity>
             </View>
           </>

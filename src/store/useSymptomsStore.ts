@@ -8,6 +8,13 @@ export interface SymptomEntry {
   date: string; // ISO date
   symptoms: Record<SymptomKeys, boolean>;
   notes?: string;
+  /**
+   * Lightweight wellness signals to personalize tips.
+   * These are optional to remain backward-compatible with stored entries.
+   */
+  sleepHours?: number; // last night
+  painLevel?: number; // 0-10
+  foodNote?: string;
 }
 
 interface SymptomsState {
@@ -26,6 +33,9 @@ export const useSymptomsStore = create<SymptomsState>((set, get) => ({
       date: e.date ? new Date(e.date).toISOString() : new Date().toISOString(),
       symptoms: e.symptoms,
       notes: e.notes,
+      sleepHours: e.sleepHours,
+      painLevel: e.painLevel,
+      foodNote: e.foodNote,
     };
     set({ entries: [...get().entries, entry] });
     get().persist();

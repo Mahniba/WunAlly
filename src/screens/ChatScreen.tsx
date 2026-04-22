@@ -86,6 +86,8 @@ export function ChatScreen() {
       paddingLeft: s(18),
       paddingRight: s(48),
       minHeight: 48,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     inputMic: {
       position: 'absolute',
@@ -93,27 +95,22 @@ export function ChatScreen() {
       padding: s(4),
     },
     inputMicText: { fontSize: 22 },
-    voiceFab: {
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      backgroundColor: colors.lavender,
-      justifyContent: 'center',
+    sendBtn: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.coral,
       alignItems: 'center',
-      shadowColor: colors.lavenderDark,
+      justifyContent: 'center',
+      shadowColor: colors.coralDark,
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
+      shadowOpacity: 0.2,
       shadowRadius: 4,
-      elevation: 4,
+      elevation: 3,
     },
-    voiceFabActive: { backgroundColor: colors.coral },
-    voiceFabIcon: { fontSize: 26 },
-    talkLabel: {
-      fontSize: 10,
-      fontWeight: typography.weights.semibold,
-      color: colors.textPrimary,
-      marginTop: 2,
-    },
+    sendBtnDisabled: { opacity: 0.5 },
+    sendIcon: { fontSize: 20, color: '#FFFFFF', fontWeight: typography.weights.bold },
+    // Keep input area simple: text + mic + send
   });
 
   return (
@@ -156,15 +153,14 @@ export function ChatScreen() {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={[styles.voiceFab, isVoiceListening && styles.voiceFabActive]}
-          onPress={handleVoice}
+          style={[styles.sendBtn, (!input.trim() || isVoiceListening) && styles.sendBtnDisabled]}
+          onPress={() => send()}
+          disabled={!input.trim() || isVoiceListening}
           activeOpacity={0.9}
-          disabled={isVoiceListening}
-          accessible
-          accessibilityLabel="Talk to AI"
+          accessibilityRole="button"
+          accessibilityLabel="Send message"
         >
-          <Text style={styles.voiceFabIcon}>{isVoiceListening ? '...' : '⏺️'}</Text>
-          <Text style={styles.talkLabel}>Talk</Text>
+          <Text style={styles.sendIcon}>➤</Text>
         </TouchableOpacity>
       </View>
     </ScreenContainer>

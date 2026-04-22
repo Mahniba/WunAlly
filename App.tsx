@@ -13,7 +13,6 @@ import { DoctorAlert } from './src/components/DoctorAlert';
 import { getSymptomReminderTime } from './src/services/storage';
 import { Alert } from 'react-native';
 import { TouchableOpacity, Text } from 'react-native';
-import { resetOnboarding } from './src/services/storage';
 
 export default function App() {
   const setDone = useOnboardingStore((s) => s.setDone);
@@ -21,16 +20,7 @@ export default function App() {
   const entries = useSymptomsStore((s) => s.entries);
   const [doctorAlert, setDoctorAlert] = React.useState<{ visible: boolean; message?: string }>({ visible: false });
   
-  const handleResetOnboarding = async () => {
-    try {
-      await resetOnboarding();
-      setDone(false);
-      // navigate to onboarding if navigation is ready
-      navigationRef?.current && navigationRef.navigate && navigationRef.navigate('Onboarding' as any);
-    } catch (e) {
-      console.error('Failed to reset onboarding', e);
-    }
-  };
+  // NOTE: Avoid dev-only UI overlays in production builds.
 
   React.useEffect(() => {
     // hydrate symptoms store on app start and schedule daily reminder
@@ -77,22 +67,6 @@ export default function App() {
           <StatusBar style="dark" />
           <RootNavigator />
           <Sidebar />
-          
-          {/* Dev button to reset onboarding - remove in production */}
-          <TouchableOpacity 
-            onPress={handleResetOnboarding}
-            style={{
-              position: 'absolute',
-              bottom: 20,
-              right: 20,
-              backgroundColor: '#FF69B4',
-              padding: 10,
-              borderRadius: 5,
-              zIndex: 999,
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 12 }}>Reset Onboarding</Text>
-          </TouchableOpacity>
           <DoctorAlert
             visible={doctorAlert.visible}
             onClose={() => setDoctorAlert({ visible: false })}

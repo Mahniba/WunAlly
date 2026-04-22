@@ -10,13 +10,28 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
   const [headache, setHeadache] = useState(false);
   const [dizzy, setDizzy] = useState(false);
   const [notes, setNotes] = useState('');
+  const [sleepHours, setSleepHours] = useState('');
+  const [painLevel, setPainLevel] = useState('');
+  const [foodNote, setFoodNote] = useState('');
 
   const handleSave = () => {
-    addEntry({ symptoms: { nausea, headache, dizzy }, notes: notes.trim() || undefined });
+    const sleep = sleepHours.trim() ? Number(sleepHours.trim()) : undefined;
+    const pain = painLevel.trim() ? Number(painLevel.trim()) : undefined;
+
+    addEntry({
+      symptoms: { nausea, headache, dizzy },
+      notes: notes.trim() || undefined,
+      sleepHours: Number.isFinite(sleep) ? sleep : undefined,
+      painLevel: Number.isFinite(pain) ? pain : undefined,
+      foodNote: foodNote.trim() || undefined,
+    });
     setNausea(false);
     setHeadache(false);
     setDizzy(false);
     setNotes('');
+    setSleepHours('');
+    setPainLevel('');
+    setFoodNote('');
     onClose();
   };
 
@@ -27,6 +42,15 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
     row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 8 },
     label: { color: colors.textPrimary, fontSize: 16 },
     checkbox: { width: 28, height: 28, borderRadius: 6, borderWidth: 1, borderColor: colors.textSecondary, alignItems: 'center', justifyContent: 'center' },
+    fieldLabel: { color: colors.textSecondary, fontSize: 13, marginTop: 10, marginBottom: 6 },
+    smallInput: {
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 10,
+      borderRadius: 10,
+      color: colors.textPrimary,
+    },
     notes: { marginTop: 12, backgroundColor: colors.backgroundSecondary, padding: 10, borderRadius: 8, color: colors.textPrimary, minHeight: 60 },
     actions: { flexDirection: 'row', gap: 12, marginTop: 14 },
   });
@@ -54,6 +78,32 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
             <Text style={styles.label}>Dizziness</Text>
             <Toggle value={dizzy} onToggle={() => setDizzy((v) => !v)} />
           </View>
+          <Text style={styles.fieldLabel}>Sleep (hours last night)</Text>
+          <TextInput
+            value={sleepHours}
+            onChangeText={setSleepHours}
+            keyboardType="numeric"
+            placeholder="e.g. 7"
+            placeholderTextColor={colors.textMuted}
+            style={styles.smallInput}
+          />
+          <Text style={styles.fieldLabel}>Pain level (0–10)</Text>
+          <TextInput
+            value={painLevel}
+            onChangeText={setPainLevel}
+            keyboardType="numeric"
+            placeholder="e.g. 3"
+            placeholderTextColor={colors.textMuted}
+            style={styles.smallInput}
+          />
+          <Text style={styles.fieldLabel}>Food / appetite (optional)</Text>
+          <TextInput
+            value={foodNote}
+            onChangeText={setFoodNote}
+            placeholder="e.g. nauseous in mornings, craving fruits"
+            placeholderTextColor={colors.textMuted}
+            style={styles.smallInput}
+          />
           <TextInput
             placeholder="Notes (optional)"
             placeholderTextColor={colors.textMuted}

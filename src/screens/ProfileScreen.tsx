@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, Card, SecondaryButton, SymptomsSettings, SymptomsChart } from '../components';
@@ -7,12 +7,18 @@ import { WeekProgress } from '../components';
 import { getWeekInfo } from '../utils/weekData';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
+import { useSymptomsStore } from '../store/useSymptomsStore';
 
 export function ProfileScreen() {
   const navigation = useNavigation();
   const profile = useProfileStore((s) => s.profile);
+  const hydrateSymptoms = useSymptomsStore((s) => s.hydrate);
   const { s, font, horizontalPadding } = useResponsive();
   const [showSettings, setShowSettings] = useState(false);
+
+  useEffect(() => {
+    hydrateSymptoms();
+  }, [hydrateSymptoms]);
 
   const styles = StyleSheet.create({
     header: { paddingHorizontal: horizontalPadding, paddingTop: s(16), paddingBottom: s(8) },
@@ -27,6 +33,7 @@ export function ProfileScreen() {
     value: { fontSize: font(typography.sizes.base), color: colors.textPrimary, marginBottom: s(4) },
     btn: { marginTop: s(16) },
     smallBtn: { marginTop: s(10) },
+    chartCard: { marginTop: 12 },
   });
 
   return (
@@ -104,7 +111,7 @@ export function ProfileScreen() {
           onPress={() => setShowSettings(true)}
           style={styles.smallBtn}
         />
-        <Card style={{ marginTop: 12 }}>
+        <Card style={styles.chartCard}>
           <SymptomsChart days={14} />
         </Card>
         <SecondaryButton

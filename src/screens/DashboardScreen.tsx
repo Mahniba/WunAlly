@@ -12,7 +12,7 @@ import { colors, typography } from '../theme';
 const ACTIONS = [
   { key: 'track', title: 'Track Progress', bg: colors.lavender, nav: 'Tracking' as const },
   { key: 'chat', title: 'Chat with AI', bg: colors.chipChat, nav: 'Chat' as const },
-  { key: 'reminders', title: 'Reminders', bg: colors.accentOrange, nav: 'Reminders' as const },
+  { key: 'reminders', title: 'Reminders', bg: colors.chipReminders, nav: 'Reminders' as const },
   { key: 'sos', title: 'SOS Alert', bg: colors.sos, nav: 'SOS' as const },
 ] as const;
 
@@ -80,7 +80,6 @@ export function DashboardScreen() {
     actionTitle: {
       fontSize: font(typography.sizes.sm),
       fontWeight: typography.weights.semibold,
-      color: '#FFFFFF',
       textAlign: 'center',
     },
   });
@@ -125,7 +124,14 @@ export function DashboardScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={item.title}
               >
-                <Text style={styles.actionTitle} allowFontScaling maxFontSizeMultiplier={1.2}>
+                <Text
+                  style={[
+                    styles.actionTitle,
+                    { color: item.key === 'sos' ? '#FFFFFF' : colors.textPrimary },
+                  ]}
+                  allowFontScaling
+                  maxFontSizeMultiplier={1.2}
+                >
                   {item.title}
                 </Text>
               </TouchableOpacity>

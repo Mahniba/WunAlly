@@ -9,8 +9,13 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
   Onboarding: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  ForgotPassword: undefined;
+  Verification: undefined;
   ProfileCreate: undefined;
-  Main: NavigatorScreenParams<MainTabParamList>;
+  EmergencyContacts: undefined;
+  Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Tracking: { week: number };
   Chat: undefined;
   ChatSupport: undefined;

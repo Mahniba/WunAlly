@@ -17,6 +17,7 @@ import { SignUpScreen } from '../screens/SignUpScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { VerificationScreen } from '../screens/VerificationScreen';
 import { EmergencyContactsScreen } from '../screens/EmergencyContactsScreen';
+import { colors } from '../theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -41,7 +42,7 @@ export function RootNavigator() {
   const showAuth = !isAuthenticated && !showOnboarding;
   const showProfileCreate = isAuthenticated && !profile?.name && !showOnboarding;
 
-  const initialRoute = showOnboarding
+  const initialRoute: keyof RootStackParamList = showOnboarding
     ? 'Onboarding'
     : showAuth
     ? 'Login'
@@ -53,12 +54,12 @@ export function RootNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#FDF8F9' },
+        contentStyle: { backgroundColor: colors.background },
       }}
       initialRouteName={initialRoute}
     >
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ animationEnabled: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'none' }} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="Verification" component={VerificationScreen} />

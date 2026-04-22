@@ -4,6 +4,10 @@ import { useRoute } from '@react-navigation/native';
 import { ScreenContainer, Card, ScreenHeader } from '../components';
 import { getWeekInfo, getTrimesterLabel } from '../utils/weekData';
 import { getTrimesterExpectation } from '../utils/trimesterData';
+import { getPersonalizedTips } from '../utils/personalizedTips';
+import { useProfileStore } from '../store/useProfileStore';
+import { useMoodStore } from '../store/useMoodStore';
+import { useSymptomsStore } from '../store/useSymptomsStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
@@ -16,6 +20,21 @@ export function TrackingScreen() {
   const [expandedThisWeek, setExpandedThisWeek] = useState(true);
   const [expandedTips, setExpandedTips] = useState(true);
   const [expandedTrimester, setExpandedTrimester] = useState(false);
+
+  const profile = useProfileStore((st) => st.profile);
+  const hydrateProfile = useProfileStore((st) => st.hydrate);
+  const moodEntries = useMoodStore((st) => st.entries);
+  const hydrateMood = useMoodStore((st) => st.hydrate);
+  const symptomEntries = useSymptomsStore((st) => st.entries);
+  const hydrateSymptoms = useSymptomsStore((st) => st.hydrate);
+
+  React.useEffect(() => {
+    hydrateProfile();
+    hydrateMood();
+    hydrateSymptoms();
+  }, [hydrateProfile, hydrateMood, hydrateSymptoms]);
+
+  const personalized = getPersonalizedTips({ profile, moodEntries, symptomEntries, week });
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -70,6 +89,16 @@ export function TrackingScreen() {
       color: colors.textSecondary,
       lineHeight: 22,
     },
+    tipCard: {
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: 12,
+      padding: s(12),
+      marginTop: s(10),
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tipTitle: { color: colors.textPrimary, fontWeight: typography.weights.semibold, marginBottom: 4 },
+    tipBody: { color: colors.textSecondary, lineHeight: 20 },
   });
 
   return (
@@ -118,6 +147,20 @@ export function TrackingScreen() {
           </View>
           {expandedTips && (
             <View style={styles.expandableBody}>
+              {personalized.length > 0 ? (
+                <>
+                  <Text style={[styles.expandableText, { marginBottom: s(8) }]}>
+                    Personalized tips based on your mood, symptoms, sleep, pain, and profile.
+                  </Text>
+                  {personalized.map((t, i) => (
+                    <View key={i} style={styles.tipCard}>
+                      <Text style={styles.tipTitle}>{t.title}</Text>
+                      <Text style={styles.tipBody}>{t.body}</Text>
+                    </View>
+                  ))}
+                  <View style={{ marginTop: s(14) }} />
+                </>
+              ) : null}
               {info.tips.map((t, i) => (
                 <Text key={i} style={styles.expandableText} allowFontScaling maxFontSizeMultiplier={1.3}>
                   {t}

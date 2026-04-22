@@ -18,9 +18,9 @@ export function FloatingVoiceButton({ onPress }: FloatingVoiceButtonProps) {
       activeOpacity={0.9}
       accessible
       accessibilityRole="button"
-      accessibilityLabel="Voice support"
+      accessibilityLabel="Chat assistant"
     >
-      <Text style={styles.icon}>⏺️</Text>
+      <Text style={styles.icon}>🤖</Text>
     </TouchableOpacity>
   );
 }

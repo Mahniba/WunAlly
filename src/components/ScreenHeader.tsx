@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography, spacing } from '../theme';
 import { MIN_TOUCH_TARGET } from '../constants';
+import type { RootStackParamList } from '../navigation/types';
 
 interface ScreenHeaderProps {
   title: string;
@@ -10,7 +12,7 @@ interface ScreenHeaderProps {
 }
 
 export function ScreenHeader({ title, showBack = true }: ScreenHeaderProps) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <View style={styles.header}>
       {showBack ? (
