@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography } from '../theme';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { RemindersScreen } from '../screens/RemindersScreen';
+import { CheckInHomeScreen } from '../screens/CheckInHomeScreen';
 import { HealthSupportScreen } from '../screens/HealthSupportScreen';
+import { CheckInTabButton } from '../components';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import type { MainTabParamList } from './types';
 
@@ -73,11 +75,18 @@ export function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="HealthSupport"
+        name="CheckIn"
+        component={CheckInHomeScreen}
+        options={{
+          tabBarButton: (props) => <CheckInTabButton {...props} />,
+        }}
+      />
+      <Tab.Screen
+        name="Network"
         component={HealthSupportScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Health" focused={focused} icon="❤️" />
+            <TabIconLabel label="Network" focused={focused} icon="🌐" />
           ),
         }}
       />

@@ -11,6 +11,7 @@ import { ChatScreen } from '../screens/ChatScreen';
 import { ChatSupportScreen } from '../screens/ChatSupportScreen';
 import { CarePlanNotesScreen } from '../screens/CarePlanNotesScreen';
 import { SOSScreen } from '../screens/SOSScreen';
+import { WarningSignsScreen } from '../screens/WarningSignsScreen';
 import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { SignUpScreen } from '../screens/SignUpScreen';
@@ -66,6 +67,7 @@ export function RootNavigator() {
       <Stack.Screen name="ProfileCreate" component={ProfileCreateScreen} />
       <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
+      <Stack.Screen name="WarningSigns" component={WarningSignsScreen} />
       <Stack.Screen name="Tracking" component={TrackingScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
       <Stack.Screen name="ChatSupport" component={ChatSupportScreen} />
