@@ -1,4 +1,14 @@
 export const MIN_TOUCH_TARGET = 44;
+
+/**
+ * SecureStore keys for JWT.
+ * Must be alphanumeric plus ".", "-", "_" only (no @ or /).
+ */
+export const TOKEN_KEYS = {
+  ACCESS: 'wunally_access_token',
+  REFRESH: 'wunally_refresh_token',
+} as const;
+
 export const STORAGE_KEYS = {
   USER_PROFILE: '@wunally/profile',
   ONBOARDING_DONE: '@wunally/onboarding_done',

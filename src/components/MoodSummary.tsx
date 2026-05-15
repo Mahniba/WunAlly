@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput } from 
 import { useNavigation } from '@react-navigation/native';
 import { useMoodStore, MoodType } from '../store/useMoodStore';
 import { useProfileStore } from '../store/useProfileStore';
+import { useContentStore } from '../store/useContentStore';
+import { colorFromKey } from '../utils/contentColors';
 import { colors, typography } from '../theme';
 import PregnantIllustration from './art/PregnantIllustration';
 
@@ -13,31 +15,32 @@ try {
   ChartKit = require('react-native-chart-kit');
 } catch {}
 
-const MOODS: { key: MoodType; label: string; emoji: string; color: string }[] = [
-  { key: 'happy', label: 'Happy', emoji: '😊', color: colors.moodHappy },
-  { key: 'ok', label: 'Okay', emoji: '🙂', color: colors.moodOk },
-  { key: 'tired', label: 'Tired', emoji: '😴', color: colors.moodTired },
-  { key: 'sleepy', label: 'Sleepy', emoji: '💤', color: colors.moodSleepy },
-  { key: 'confused', label: 'Confused', emoji: '😕', color: colors.moodConfused },
-  { key: 'sad', label: 'Sad', emoji: '😢', color: colors.moodSad },
-  { key: 'anxious', label: 'Anxious', emoji: '😰', color: colors.moodAnxious },
-  { key: 'stressed', label: 'Stressed', emoji: '😣', color: colors.moodStressed },
-];
-
 export function MoodSummary() {
   const navigation = useNavigation<any>();
   const profile = useProfileStore((s) => s.profile);
   const entries = useMoodStore((s) => s.entries);
   const hydrate = useMoodStore((s) => s.hydrate);
   const addEntry = useMoodStore((s) => s.addEntry);
+  const moodOptions = useContentStore((s) => s.content.moods);
+  const hydrateContent = useContentStore((s) => s.hydrate);
+
+  const MOODS = useMemo(
+    () =>
+      moodOptions.map((m) => ({
+        key: m.key as MoodType,
+        label: m.label,
+        emoji: m.emoji,
+        color: colorFromKey(m.color_key, colors.moodOk),
+      })),
+    [moodOptions]
+  );
   const [selected, setSelected] = useState<MoodType | null>(null);
   const [note, setNote] = useState('');
 
   useEffect(() => {
-    // hydrate once on mount
     hydrate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    hydrateContent();
+  }, [hydrate, hydrateContent]);
 
   const freq = useMemo(() => {
     const map = new Map<string, number>();
@@ -203,7 +206,11 @@ export function MoodSummary() {
         </View>
         <TouchableOpacity
           style={styles.supportBtn}
-          onPress={() => navigation.navigate('Tracking', { week: profile?.weeksPregnant ?? 24 })}
+          onPress={() => {
+            const w = profile?.weeksPregnant;
+            if (w) navigation.navigate('Tracking', { week: Math.max(1, Math.min(42, w)) });
+            else navigation.navigate('Tracking', { week: 1 });
+          }}
           accessibilityRole="button"
           accessibilityLabel="Get tips and support"
         >

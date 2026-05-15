@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { ScreenContainer, PrimaryButton, SecondaryButton } from '../components';
-import { useAuthStore } from '../store';
+import { useAuthStore, useProfileStore } from '../store';
+import { getErrorMessage } from '../services/api/errors';
+import { resetAfterAuth } from '../navigation/authNavigation';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
@@ -17,8 +19,10 @@ export function LoginScreen({ navigation }: any) {
     try {
       setError('');
       await login(email, password);
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      const currentProfile = useProfileStore.getState().profile;
+      resetAfterAuth(navigation, Boolean(currentProfile?.name?.trim()));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Login failed. Please try again.'));
     }
   };
 

@@ -19,6 +19,8 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Tracking: { week: number };
   WarningSigns: undefined;
+  SymptomCheckIn: { symptomCategory: string; title: string; showExtras?: boolean };
+  MoodCheckIn: undefined;
   Chat: undefined;
   ChatSupport: undefined;
   CarePlanNotes: undefined;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { ScreenContainer } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
@@ -6,47 +6,45 @@ import { colors, typography } from '../theme';
 import { PrimaryButton, SecondaryButton } from '../components';
 import { useNavigation } from '@react-navigation/native';
 import { useSymptomsStore } from '../store/useSymptomsStore';
-
-const SYMPTOMS = [
-  { key: 'severe_headache', label: 'Severe headache', emoji: '🤕' },
-  { key: 'blurred_vision', label: 'Blurred vision', emoji: '👁️' },
-  { key: 'vaginal_bleeding', label: 'Vaginal bleeding', emoji: '🩸' },
-  { key: 'severe_abdominal_pain', label: 'Severe abdominal pain', emoji: '🤢' },
-  { key: 'nausea', label: 'Nausea', emoji: '🤮' },
-  { key: 'fever', label: 'Fever', emoji: '🌡️' },
-  { key: 'severe_vomiting', label: 'Severe vomiting', emoji: '🤮' },
-  { key: 'reduced_baby_movement', label: 'Reduced baby movement', emoji: '👶' },
-  { key: 'dizziness', label: 'Dizziness', emoji: '🌀' },
-  { key: 'insomnia', label: 'Insomnia', emoji: '😴' },
-  { key: 'foul_discharge', label: 'Foul-smelling discharge', emoji: '🫗' },
-  { key: 'difficulty_breathing', label: 'Difficulty breathing', emoji: '😮‍💨' },
-  { key: 'swelling_face_hands_feet', label: 'Swelling in face, hands or feet', emoji: '✋' },
-];
+import { useContentStore } from '../store/useContentStore';
 
 export function WarningSignsScreen() {
   const { s, font, horizontalPadding } = useResponsive();
   const navigation = useNavigation();
   const addEntry = useSymptomsStore((s2) => s2.addEntry);
+  const symptoms = useContentStore((st) => st.getSymptoms('warning_signs'));
+  const hydrateContent = useContentStore((st) => st.hydrate);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    hydrateContent();
+  }, [hydrateContent]);
 
   const toggle = (k: string) => setSelected((p) => ({ ...p, [k]: !p[k] }));
 
-  const handleSave = () => {
-    // Persist only the selected keys as true
+  const handleSave = async () => {
     const anySelected = Object.values(selected).some(Boolean);
     if (!anySelected) {
       Alert.alert('No symptoms selected', 'Please select at least one symptom or tap "I\'m not experiencing any".');
       return;
     }
-    addEntry({ symptoms: selected });
-    Alert.alert('Saved', 'Your check-in was saved.');
-    navigation.goBack();
+    try {
+      await addEntry({ symptoms: selected, category: 'warning_signs' });
+      Alert.alert('Saved', 'Your check-in was saved.');
+      navigation.goBack();
+    } catch {
+      Alert.alert('Error', 'Could not save your check-in. Please try again.');
+    }
   };
 
-  const handleNone = () => {
-    addEntry({ symptoms: {} });
-    Alert.alert('Saved', 'No symptoms recorded for today.');
-    navigation.goBack();
+  const handleNone = async () => {
+    try {
+      await addEntry({ symptoms: {}, category: 'warning_signs' });
+      Alert.alert('Saved', 'No symptoms recorded for today.');
+      navigation.goBack();
+    } catch {
+      Alert.alert('Error', 'Could not save your check-in. Please try again.');
+    }
   };
 
   const styles = StyleSheet.create({
@@ -71,7 +69,7 @@ export function WarningSignsScreen() {
           <Text style={{ color: colors.textPrimary, fontWeight: typography.weights.semibold }}>If you select any of these, we may give you important advice or suggest you seek medical care.</Text>
         </View>
         <View style={styles.grid}>
-          {SYMPTOMS.map((sItem) => {
+          {symptoms.map((sItem) => {
             const isSel = !!selected[sItem.key];
             return (
               <TouchableOpacity

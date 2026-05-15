@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
 import { ScreenContainer, ScreenHeader, PrimaryButton } from '../components';
+import { useCarePlanStore } from '../store/useCarePlanStore';
+import { getErrorMessage } from '../services/api/errors';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
 export function CarePlanNotesScreen() {
   const { s, font, horizontalPadding } = useResponsive();
+  const { medical: storedMedical, labourPrefs: storedLabour, hydrate, save } = useCarePlanStore();
   const [medical, setMedical] = useState('');
   const [labourPrefs, setLabourPrefs] = useState('');
-  
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const raw = await (await import('../services/storage')).getCarePlanNotes();
-        if (mounted && raw) {
-          const parsed = JSON.parse(raw);
-          setMedical(parsed.medical || '');
-          setLabourPrefs(parsed.labourPrefs || '');
-        }
-      } catch (e) {
-        // ignore
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    setMedical(storedMedical);
+    setLabourPrefs(storedLabour);
+  }, [storedMedical, storedLabour]);
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -53,6 +49,18 @@ export function CarePlanNotesScreen() {
       textAlignVertical: 'top',
     },
   });
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await save(medical, labourPrefs);
+      Alert.alert('Saved', 'Your care plan notes have been saved.');
+    } catch (err: unknown) {
+      Alert.alert('Error', getErrorMessage(err, 'Unable to save notes.'));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <ScreenContainer>
@@ -89,16 +97,9 @@ export function CarePlanNotesScreen() {
       </ScrollView>
       <View style={{ paddingHorizontal: horizontalPadding, paddingBottom: s(18) }}>
         <PrimaryButton
-          title="Save"
-          onPress={async () => {
-            try {
-              const payload = JSON.stringify({ medical, labourPrefs });
-              await (await import('../services/storage')).setCarePlanNotes(payload);
-              Alert.alert('Saved', 'Your care plan notes have been saved.');
-            } catch (e) {
-              Alert.alert('Error', 'Unable to save notes.');
-            }
-          }}
+          title={saving ? 'Saving…' : 'Save'}
+          onPress={handleSave}
+          disabled={saving}
         />
       </View>
     </ScreenContainer>

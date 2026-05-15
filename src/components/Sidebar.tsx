@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSidebar } from '../context/SidebarContext';
 import { useAuthStore } from '../store';
+import { resetToLogin } from '../navigation/authNavigation';
 import { colors, typography } from '../theme';
 
 const SIDEBAR_WIDTH = 260;
@@ -34,7 +35,7 @@ export function Sidebar() {
       } catch (e) {
         console.error('Logout failed', e);
       }
-      nav.navigate('Login');
+      resetToLogin(navigation as never);
     } else {
       nav.navigate(screen);
     }

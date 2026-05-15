@@ -8,6 +8,7 @@ import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import { useContactsStore } from '../store/useContactsStore';
+import { logSosEvent } from '../services/api/sos';
 
 export function SOSScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -21,6 +22,7 @@ export function SOSScreen() {
   }, [hydrateContacts]);
 
   const handleSend = () => {
+    void logSosEvent(false);
     setSent(true);
     setTimeout(() => {
       try {
@@ -133,6 +135,7 @@ export function SOSScreen() {
                     await Share.share({
                       message: `My current location: ${mapsUrl}`,
                     });
+                    void logSosEvent(true);
                   } catch (e) {
                     Alert.alert('Could not get location', 'Please try again.');
                   }

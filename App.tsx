@@ -9,6 +9,8 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { useOnboardingStore, useSymptomsStore } from './src/store';
 import { requestNotificationPermissions, scheduleDailyReminder } from './src/services/notifications';
 import { evaluateSymptomRules } from './src/services/symptomRules';
+import { logAlertEvent } from './src/services/api/alerts';
+import { hasAccessToken } from './src/services/api/session';
 import { DoctorAlert } from './src/components/DoctorAlert';
 import { getSymptomReminderTime } from './src/services/storage';
 import { Alert } from 'react-native';
@@ -19,6 +21,7 @@ export default function App() {
   const hydrateSymptoms = useSymptomsStore((s) => s.hydrate);
   const entries = useSymptomsStore((s) => s.entries);
   const [doctorAlert, setDoctorAlert] = React.useState<{ visible: boolean; message?: string }>({ visible: false });
+  const lastAlertKeyRef = React.useRef<string | null>(null);
   
   // NOTE: Avoid dev-only UI overlays in production builds.
 
@@ -51,12 +54,25 @@ export default function App() {
   }, [hydrateSymptoms]);
 
   React.useEffect(() => {
-    // evaluate rules whenever entries change and show an alert if any rules fire
     if (!entries || entries.length === 0) return;
     const alerts = evaluateSymptomRules(entries);
     if (alerts.length > 0) {
       const first = alerts[0];
+      const alertKey = `${first.symptom}:${first.count}:${first.windowDays}`;
       setDoctorAlert({ visible: true, message: first.message });
+      if (lastAlertKeyRef.current !== alertKey) {
+        lastAlertKeyRef.current = alertKey;
+        (async () => {
+          if (await hasAccessToken()) {
+            await logAlertEvent({
+              symptom: first.symptom,
+              count: first.count,
+              window_days: first.windowDays,
+              message: first.message,
+            });
+          }
+        })();
+      }
     }
   }, [entries]);
 

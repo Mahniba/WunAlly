@@ -1,40 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { ScreenContainer, Card, ScreenHeader } from '../components';
+import { ScreenContainer, ScreenHeader } from '../components';
 import { getWeekInfo, getTrimesterLabel } from '../utils/weekData';
 import { getTrimesterExpectation } from '../utils/trimesterData';
-import { getPersonalizedTips } from '../utils/personalizedTips';
 import { useProfileStore } from '../store/useProfileStore';
 import { useMoodStore } from '../store/useMoodStore';
 import { useSymptomsStore } from '../store/useSymptomsStore';
+import { usePersonalizedTips } from '../hooks/usePersonalizedTips';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
 export function TrackingScreen() {
   const route = useRoute();
   const { s, font, horizontalPadding } = useResponsive();
-  const week = (route.params as { week?: number })?.week ?? 24;
-  const info = getWeekInfo(week);
+  const profile = useProfileStore((st) => st.profile);
+  const weekFromProfile = profile?.weeksPregnant;
+  const weekParam = (route.params as { week?: number })?.week;
+  const week = weekParam ?? weekFromProfile ?? 1;
+  const info = getWeekInfo(Math.max(1, Math.min(42, week)));
   const trimesterInfo = getTrimesterExpectation(info.trimester);
   const [expandedThisWeek, setExpandedThisWeek] = useState(true);
   const [expandedTips, setExpandedTips] = useState(true);
   const [expandedTrimester, setExpandedTrimester] = useState(false);
 
-  const profile = useProfileStore((st) => st.profile);
   const hydrateProfile = useProfileStore((st) => st.hydrate);
-  const moodEntries = useMoodStore((st) => st.entries);
   const hydrateMood = useMoodStore((st) => st.hydrate);
-  const symptomEntries = useSymptomsStore((st) => st.entries);
   const hydrateSymptoms = useSymptomsStore((st) => st.hydrate);
+  const resolvedWeek = Math.max(1, Math.min(42, week));
+  const { tips: personalized, loading: tipsLoading } = usePersonalizedTips(resolvedWeek);
 
   React.useEffect(() => {
     hydrateProfile();
     hydrateMood();
     hydrateSymptoms();
   }, [hydrateProfile, hydrateMood, hydrateSymptoms]);
-
-  const personalized = getPersonalizedTips({ profile, moodEntries, symptomEntries, week });
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -147,25 +147,23 @@ export function TrackingScreen() {
           </View>
           {expandedTips && (
             <View style={styles.expandableBody}>
-              {personalized.length > 0 ? (
-                <>
-                  <Text style={[styles.expandableText, { marginBottom: s(8) }]}>
-                    Personalized tips based on your mood, symptoms, sleep, pain, and profile.
-                  </Text>
-                  {personalized.map((t, i) => (
-                    <View key={i} style={styles.tipCard}>
-                      <Text style={styles.tipTitle}>{t.title}</Text>
-                      <Text style={styles.tipBody}>{t.body}</Text>
-                    </View>
-                  ))}
-                  <View style={{ marginTop: s(14) }} />
-                </>
-              ) : null}
-              {info.tips.map((t, i) => (
-                <Text key={i} style={styles.expandableText} allowFontScaling maxFontSizeMultiplier={1.3}>
-                  {t}
+              <Text style={[styles.expandableText, { marginBottom: s(8) }]}>
+                Personalized from your mood, symptoms, sleep, pain, and profile — updated as you check in.
+              </Text>
+              {tipsLoading ? (
+                <ActivityIndicator color={colors.coral} style={{ marginVertical: 12 }} />
+              ) : personalized.length > 0 ? (
+                personalized.map((t) => (
+                  <View key={t.title} style={styles.tipCard}>
+                    <Text style={styles.tipTitle}>{t.title}</Text>
+                    <Text style={styles.tipBody}>{t.body}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.expandableText}>
+                  Log a mood or symptom check-in to unlock personalized tips.
                 </Text>
-              ))}
+              )}
             </View>
           )}
         </TouchableOpacity>

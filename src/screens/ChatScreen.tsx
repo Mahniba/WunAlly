@@ -1,53 +1,66 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { ScreenContainer, ChatBubble, ScreenHeader } from '../components';
-import { getReplyForMessage } from '../utils';
+import { sendChatMessage } from '../services/chat';
+import { useContentStore } from '../store/useContentStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
-const initialMessages = [
-  { id: '1', text: 'What should I eat this week?', isUser: true },
-  { id: '2', text: 'Focus on iron-rich foods like spinach, beans, and lean meat. Small, frequent meals can help. Stay hydrated.', isUser: false },
-];
-
-const VOICE_PROMPTS = [
-  "I'd like some support.",
-  'Can you give me a quick tip?',
-  "How am I doing this week?",
-];
+type ChatMessage = { id: string; text: string; isUser: boolean };
 
 export function ChatScreen() {
-  const [messages, setMessages] = useState(initialMessages);
+  const chatConfig = useContentStore((s) => s.content.chat);
+  const hydrateContent = useContentStore((s) => s.hydrate);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [welcomeShown, setWelcomeShown] = useState(false);
   const [input, setInput] = useState('');
   const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const [sending, setSending] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const { s, font, horizontalPadding } = useResponsive();
+
+  useEffect(() => {
+    hydrateContent();
+  }, [hydrateContent]);
+
+  useEffect(() => {
+    if (!welcomeShown && chatConfig.welcome_message) {
+      setMessages([{ id: 'welcome', text: chatConfig.welcome_message, isUser: false }]);
+      setWelcomeShown(true);
+    }
+  }, [chatConfig.welcome_message, welcomeShown]);
 
   useEffect(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
   }, [messages]);
 
-  const send = (text?: string) => {
+  const send = async (text?: string) => {
     const toSend = (text ?? input).trim();
-    if (!toSend) return;
+    if (!toSend || sending) return;
     const userMsg = { id: Date.now().toString(), text: toSend, isUser: true };
-    const replyText = getReplyForMessage(toSend);
-    const reply = { id: (Date.now() + 1).toString(), text: replyText, isUser: false };
-    setMessages((m) => [...m, userMsg, reply]);
+    setMessages((m) => [...m, userMsg]);
     if (!text) setInput('');
+    setSending(true);
+    try {
+      const res = await sendChatMessage({ text: toSend });
+      const reply = {
+        id: (Date.now() + 1).toString(),
+        text: res.disclaimer ? `${res.text}\n\n— ${res.disclaimer}` : res.text,
+        isUser: false,
+      };
+      setMessages((m) => [...m, reply]);
+    } finally {
+      setSending(false);
+    }
   };
 
-  const handleVoice = () => {
-    if (isVoiceListening) return;
+  const handleVoice = async () => {
+    if (isVoiceListening || sending) return;
     setIsVoiceListening(true);
-    const prompt = VOICE_PROMPTS[Math.floor(Math.random() * VOICE_PROMPTS.length)];
-    setTimeout(() => {
-      const userMsg = { id: Date.now().toString(), text: prompt, isUser: true };
-      const replyText = getReplyForMessage(prompt);
-      const reply = { id: (Date.now() + 1).toString(), text: replyText, isUser: false };
-      setMessages((m) => [...m, userMsg, reply]);
-      setIsVoiceListening(false);
-    }, 1500);
+    const prompts = chatConfig.voice_prompts.length > 0 ? chatConfig.voice_prompts : ["I'd like some support."];
+    const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+    await send(prompt);
+    setIsVoiceListening(false);
   };
 
   const styles = StyleSheet.create({
@@ -138,7 +151,7 @@ export function ChatScreen() {
             style={styles.input}
             value={input}
             onChangeText={setInput}
-            placeholder="Chat with Nurse..."
+            placeholder={chatConfig.input_placeholder || 'Type your message...'}
             placeholderTextColor={colors.textMuted}
             onSubmitEditing={() => send()}
             returnKeyType="send"

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, Card, SecondaryButton, SymptomsSettings, SymptomsChart } from '../components';
 import { useProfileStore } from '../store';
+import { useContentStore } from '../store/useContentStore';
 import { WeekProgress } from '../components';
 import { getWeekInfo } from '../utils/weekData';
 import { useResponsive } from '../hooks/useResponsive';
@@ -12,13 +13,17 @@ import { useSymptomsStore } from '../store/useSymptomsStore';
 export function ProfileScreen() {
   const navigation = useNavigation();
   const profile = useProfileStore((s) => s.profile);
+  const hydrateProfile = useProfileStore((s) => s.hydrate);
   const hydrateSymptoms = useSymptomsStore((s) => s.hydrate);
+  const hydrateContent = useContentStore((s) => s.hydrate);
   const { s, font, horizontalPadding } = useResponsive();
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
+    hydrateProfile();
     hydrateSymptoms();
-  }, [hydrateSymptoms]);
+    hydrateContent();
+  }, [hydrateProfile, hydrateSymptoms, hydrateContent]);
 
   const styles = StyleSheet.create({
     header: { paddingHorizontal: horizontalPadding, paddingTop: s(16), paddingBottom: s(8) },

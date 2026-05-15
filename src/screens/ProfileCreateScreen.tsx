@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Text, StyleSheet, ScrollView, View, Platform, TouchableOpacity } from 'react-native';
 import { ScreenContainer, InputField, PrimaryButton, WeekProgress } from '../components';
 import { useProfileStore, getDefaultProfile } from '../store';
+import { getErrorMessage } from '../services/api/errors';
+import { resetAfterAuth } from '../navigation/authNavigation';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -18,19 +20,32 @@ export function ProfileCreateScreen({ navigation }: any) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [healthConditions, setHealthConditions] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleStart = async () => {
-    const profile = getDefaultProfile();
-    profile.name = name.trim() || 'Sarah';
-    profile.age = age.trim();
-    profile.weeksPregnant = parseInt(weeksPregnant, 10) || 24;
-    profile.dueDate = dueDate.trim();
-    profile.dueDateSet = !!profile.dueDate;
-    profile.healthConditions = healthConditions.trim();
-    setProfile(profile);
-    await persist();
-    // After saving profile, prompt user to add emergency contacts
-    setShowContactsPrompt(true);
+    if (!name.trim()) {
+      setSaveError('Please enter your name.');
+      return;
+    }
+    try {
+      setSaving(true);
+      setSaveError('');
+      const profile = getDefaultProfile();
+      profile.name = name.trim();
+      profile.age = age.trim();
+      profile.weeksPregnant = parseInt(weeksPregnant, 10) || 24;
+      profile.dueDate = dueDate.trim();
+      profile.dueDateSet = !!profile.dueDate;
+      profile.healthConditions = healthConditions.trim();
+      setProfile(profile);
+      await persist();
+      setShowContactsPrompt(true);
+    } catch (err: unknown) {
+      setSaveError(getErrorMessage(err, 'Could not save your profile. Please try again.'));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const [showContactsPrompt, setShowContactsPrompt] = React.useState(false);
@@ -168,10 +183,14 @@ export function ProfileCreateScreen({ navigation }: any) {
           onChangeText={setHealthConditions}
           placeholder="Any conditions we should know about"
         />
+        {saveError ? (
+          <Text style={{ color: colors.sos, marginBottom: s(8) }}>{saveError}</Text>
+        ) : null}
         <PrimaryButton
-          title="Start My Journey"
+          title={saving ? 'Saving…' : 'Start My Journey'}
           onPress={handleStart}
           style={styles.button}
+          disabled={saving}
         />
         {/* Prompt modal to add emergency contacts */}
         {showContactsPrompt && (
@@ -180,7 +199,7 @@ export function ProfileCreateScreen({ navigation }: any) {
               <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Add emergency contacts?</Text>
               <Text style={{ color: colors.textSecondary, marginBottom: 16 }}>Would you like to add emergency contacts now so we can reach your support person if needed?</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-                <TouchableOpacity onPress={() => { setShowContactsPrompt(false); navigation.navigate('Main'); }} style={{ padding: 10 }}>
+                <TouchableOpacity onPress={() => { setShowContactsPrompt(false); resetAfterAuth(navigation, true); }} style={{ padding: 10 }}>
                   <Text style={{ color: colors.textSecondary }}>Later</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => { setShowContactsPrompt(false); navigation.navigate('EmergencyContacts'); }} style={{ padding: 10 }}>

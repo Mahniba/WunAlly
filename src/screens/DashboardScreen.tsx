@@ -1,29 +1,37 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, WeekProgress, FloatingSOSButton, FloatingVoiceButton } from '../components';
 import MoodSummary from '../components/MoodSummary';
 import { useSidebar } from '../context/SidebarContext';
 import { useProfileStore } from '../store';
+import { useContentStore } from '../store/useContentStore';
+import { usePersonalizedTips } from '../hooks/usePersonalizedTips';
 import { getWeekInfo } from '../utils/weekData';
+import { colorFromKey } from '../utils/contentColors';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
-
-const ACTIONS = [
-  { key: 'track', title: 'Track Progress', bg: colors.lavender, nav: 'Tracking' as const },
-  { key: 'chat', title: 'Chat with AI', bg: colors.chipChat, nav: 'Chat' as const },
-  { key: 'reminders', title: 'Reminders', bg: colors.chipReminders, nav: 'Reminders' as const },
-  { key: 'sos', title: 'SOS Alert', bg: colors.sos, nav: 'SOS' as const },
-] as const;
 
 export function DashboardScreen() {
   const navigation = useNavigation();
   const parent = navigation.getParent() as { navigate: (name: string, params?: object) => void } | undefined;
   const profile = useProfileStore((s) => s.profile);
+  const hydrateProfile = useProfileStore((s) => s.hydrate);
+  const homeActions = useContentStore((s) => s.content.home_actions);
+  const loaded = useContentStore((s) => s.loaded);
+  const hydrateContent = useContentStore((s) => s.hydrate);
   const { s, sVertical, font, horizontalPadding } = useResponsive();
   const name = profile?.name || 'there';
-  const week = profile?.weeksPregnant ?? 24;
-  const weekInfo = getWeekInfo(week);
+  const week = profile?.weeksPregnant;
+  const resolvedWeek = week ? Math.max(1, Math.min(42, week)) : 1;
+  const weekInfo = week ? getWeekInfo(resolvedWeek) : null;
+  const { tips: personalizedTips, loading: tipsLoading } = usePersonalizedTips(resolvedWeek);
+  const topTip = personalizedTips[0];
+
+  useEffect(() => {
+    hydrateProfile();
+    hydrateContent();
+  }, [hydrateProfile, hydrateContent]);
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -82,13 +90,42 @@ export function DashboardScreen() {
       fontWeight: typography.weights.semibold,
       textAlign: 'center',
     },
+    tipCard: {
+      backgroundColor: colors.chipTrack,
+      borderRadius: 16,
+      padding: s(16),
+      marginBottom: sVertical(20),
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tipLabel: {
+      fontSize: font(typography.sizes.sm),
+      fontWeight: typography.weights.semibold,
+      color: colors.coralDark,
+      marginBottom: s(6),
+    },
+    tipTitle: {
+      fontSize: font(typography.sizes.base),
+      fontWeight: typography.weights.semibold,
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    tipBody: {
+      fontSize: font(typography.sizes.sm),
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
   });
 
-  const handleAction = (item: (typeof ACTIONS)[number]) => {
+  const handleAction = (item: (typeof homeActions)[number]) => {
     if (item.nav === 'Reminders') {
       (navigation as { navigate: (name: string) => void }).navigate('Reminders');
     } else {
-      parent?.navigate(item.nav, item.nav === 'Tracking' ? { week } : undefined);
+      const params =
+        item.nav === 'Tracking' && week
+          ? { week: Math.max(1, Math.min(42, week)) }
+          : undefined;
+      parent?.navigate(item.nav, params);
     }
   };
 
@@ -107,36 +144,63 @@ export function DashboardScreen() {
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.weeks} allowFontScaling maxFontSizeMultiplier={1.3}>
-          You are {week} weeks pregnant.
-        </Text>
-        <View style={styles.cardWrap}>
-          <WeekProgress week={week} babySizeDescription={weekInfo.babySize} />
-        </View>
+        {week ? (
+          <Text style={styles.weeks} allowFontScaling maxFontSizeMultiplier={1.3}>
+            You are {week} weeks pregnant.
+          </Text>
+        ) : (
+          <Text style={styles.weeks}>Complete your profile to see your pregnancy week.</Text>
+        )}
+        {week && weekInfo ? (
+          <View style={styles.cardWrap}>
+            <WeekProgress week={week} babySizeDescription={weekInfo.babySize} />
+          </View>
+        ) : null}
+        {tipsLoading ? (
+          <ActivityIndicator color={colors.coral} style={{ marginBottom: sVertical(16) }} />
+        ) : topTip ? (
+          <TouchableOpacity
+            style={styles.tipCard}
+            onPress={() => parent?.navigate('Tracking', { week: resolvedWeek })}
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="View all personalized tips"
+          >
+            <Text style={styles.tipLabel}>Tip for you</Text>
+            <Text style={styles.tipTitle}>{topTip.title}</Text>
+            <Text style={styles.tipBody} numberOfLines={3}>
+              {topTip.body}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
         <View style={styles.grid}>
-          {ACTIONS.map((item) => (
-            <View key={item.key} style={styles.gridItem}>
-              <TouchableOpacity
-                style={[styles.actionCard, { backgroundColor: item.bg }]}
-                onPress={() => handleAction(item)}
-                activeOpacity={0.85}
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel={item.title}
-              >
-                <Text
-                  style={[
-                    styles.actionTitle,
-                    { color: item.key === 'sos' ? '#FFFFFF' : colors.textPrimary },
-                  ]}
-                  allowFontScaling
-                  maxFontSizeMultiplier={1.2}
+          {!loaded ? (
+            <ActivityIndicator color={colors.coral} style={{ margin: 24 }} />
+          ) : (
+            homeActions.map((item) => (
+              <View key={item.key} style={styles.gridItem}>
+                <TouchableOpacity
+                  style={[styles.actionCard, { backgroundColor: colorFromKey(item.color_key) }]}
+                  onPress={() => handleAction(item)}
+                  activeOpacity={0.85}
+                  accessible
+                  accessibilityRole="button"
+                  accessibilityLabel={item.title}
                 >
-                  {item.title}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+                  <Text
+                    style={[
+                      styles.actionTitle,
+                      { color: item.key === 'sos' ? '#FFFFFF' : colors.textPrimary },
+                    ]}
+                    allowFontScaling
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
         </View>
         <MoodSummary />
       </ScrollView>

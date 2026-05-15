@@ -2,6 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../constants';
 
+/** AsyncStorage fallback when SecureStore is unavailable (e.g. some web reloads). */
+const TOKEN_BACKUP_PREFIX = 'wunally_token_backup_';
+
 export const storage = {
   async getItem(key: string): Promise<string | null> {
     return AsyncStorage.getItem(key);
@@ -17,16 +20,30 @@ export const storage = {
 export const secureStorage = {
   async getToken(key: string): Promise<string | null> {
     try {
-      return await SecureStore.getItemAsync(key);
+      const secure = await SecureStore.getItemAsync(key);
+      if (secure) return secure;
     } catch {
-      return null;
+      // SecureStore may be unavailable on web or after reload
     }
+    return storage.getItem(TOKEN_BACKUP_PREFIX + key);
   },
+
   async setToken(key: string, value: string): Promise<void> {
-    await SecureStore.setItemAsync(key, value);
+    try {
+      await SecureStore.setItemAsync(key, value);
+    } catch {
+      // fall through to backup
+    }
+    await storage.setItem(TOKEN_BACKUP_PREFIX + key, value);
   },
+
   async deleteToken(key: string): Promise<void> {
-    await SecureStore.deleteItemAsync(key);
+    try {
+      await SecureStore.deleteItemAsync(key);
+    } catch {
+      // ignore
+    }
+    await storage.removeItem(TOKEN_BACKUP_PREFIX + key);
   },
 };
 

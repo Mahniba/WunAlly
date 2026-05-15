@@ -1,18 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { ScreenContainer, PrimaryButton, SecondaryButton } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
+import { requestPasswordReset } from '../services/api/auth';
+import { getErrorMessage } from '../services/api/errors';
 
 export function ForgotPasswordScreen({ navigation }: any) {
   const { s, sVertical, font } = useResponsive();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    // TODO: Implement password reset logic
-    console.log('Password reset requested for:', email);
-    setSubmitted(true);
+  const handleSubmit = async () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      Alert.alert('Email required', 'Please enter your email address.');
+      return;
+    }
+    try {
+      setLoading(true);
+      await requestPasswordReset(trimmed);
+      setSubmitted(true);
+    } catch (error) {
+      Alert.alert('Request failed', getErrorMessage(error, 'Could not send reset request.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToLogin = () => {
@@ -148,7 +162,7 @@ export function ForgotPasswordScreen({ navigation }: any) {
         </View>
 
         <View style={styles.buttonContainer}>
-          <PrimaryButton title="Send Reset Link" onPress={handleSubmit} disabled={!email} />
+          <PrimaryButton title="Send Reset Link" onPress={handleSubmit} disabled={!email || loading} />
         </View>
 
         <View style={styles.secondaryButton}>

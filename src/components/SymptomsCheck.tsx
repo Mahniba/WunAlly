@@ -14,16 +14,17 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
   const [painLevel, setPainLevel] = useState('');
   const [foodNote, setFoodNote] = useState('');
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const sleep = sleepHours.trim() ? Number(sleepHours.trim()) : undefined;
     const pain = painLevel.trim() ? Number(painLevel.trim()) : undefined;
 
-    addEntry({
+    await addEntry({
       symptoms: { nausea, headache, dizzy },
       notes: notes.trim() || undefined,
       sleepHours: Number.isFinite(sleep) ? sleep : undefined,
       painLevel: Number.isFinite(pain) ? pain : undefined,
       foodNote: foodNote.trim() || undefined,
+      category: 'general',
     });
     setNausea(false);
     setHeadache(false);

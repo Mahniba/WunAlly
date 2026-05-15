@@ -1,37 +1,21 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, Card, ScreenHeader } from '../components';
+import { useContentStore } from '../store/useContentStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
-const OPTIONS = [
-  {
-    key: 'ai',
-    title: 'Chat with AI',
-    desc: 'Get answers and tips anytime.',
-    icon: '💬',
-    screen: 'Chat' as const,
-  },
-  {
-    key: 'nurse',
-    title: 'Chat with Nurse',
-    desc: 'Connect with your care team.',
-    icon: '👩‍⚕️',
-    screen: 'Chat' as const,
-  },
-  {
-    key: 'voice',
-    title: 'Talk to AI',
-    desc: 'Voice support when you need it.',
-    icon: '🎤',
-    screen: 'Chat' as const,
-  },
-];
-
 export function ChatSupportScreen() {
   const navigation = useNavigation();
+  const options = useContentStore((s) => s.content.chat_support_options);
+  const loaded = useContentStore((s) => s.loaded);
+  const hydrate = useContentStore((s) => s.hydrate);
   const { s, font, horizontalPadding } = useResponsive();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   const styles = StyleSheet.create({
     content: { padding: horizontalPadding, paddingTop: s(8), gap: s(14) },
@@ -55,21 +39,25 @@ export function ChatSupportScreen() {
     <ScreenContainer>
       <ScreenHeader title="Chat & Support" />
       <View style={styles.content}>
-        {OPTIONS.map((opt) => (
-          <Card
-            key={opt.key}
-            style={styles.card}
-            onPress={() => (navigation as { navigate: (n: string) => void }).navigate(opt.screen)}
-          >
-            <View style={styles.cardIcon}>
-              <Text style={styles.cardIconText}>{opt.icon}</Text>
-            </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>{opt.title}</Text>
-              <Text style={styles.cardDesc}>{opt.desc}</Text>
-            </View>
-          </Card>
-        ))}
+        {!loaded ? (
+          <ActivityIndicator color={colors.coral} />
+        ) : (
+          options.map((opt) => (
+            <Card
+              key={opt.key}
+              style={styles.card}
+              onPress={() => (navigation as { navigate: (n: string) => void }).navigate(opt.screen)}
+            >
+              <View style={styles.cardIcon}>
+                <Text style={styles.cardIconText}>{opt.icon}</Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>{opt.title}</Text>
+                <Text style={styles.cardDesc}>{opt.description}</Text>
+              </View>
+            </Card>
+          ))
+        )}
       </View>
     </ScreenContainer>
   );

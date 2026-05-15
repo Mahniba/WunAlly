@@ -12,6 +12,9 @@ import { ChatSupportScreen } from '../screens/ChatSupportScreen';
 import { CarePlanNotesScreen } from '../screens/CarePlanNotesScreen';
 import { SOSScreen } from '../screens/SOSScreen';
 import { WarningSignsScreen } from '../screens/WarningSignsScreen';
+import { SymptomCheckInScreen } from '../screens/SymptomCheckInScreen';
+import { MoodCheckInScreen } from '../screens/MoodCheckInScreen';
+import { useContentStore } from '../store/useContentStore';
 import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { SignUpScreen } from '../screens/SignUpScreen';
@@ -27,13 +30,17 @@ export function RootNavigator() {
   const { done: onboardingDone, hydrate: hydrateOnboarding } = useOnboardingStore();
   const { profile, hydrate: hydrateProfile } = useProfileStore();
   const { isAuthenticated, hydrate: hydrateAuth } = useAuthStore();
+  const hydrateContent = useContentStore((s) => s.hydrate);
 
   useEffect(() => {
     (async () => {
-      await Promise.all([hydrateOnboarding(), hydrateProfile(), hydrateAuth()]);
+      await hydrateOnboarding();
+      await hydrateContent();
+      await hydrateAuth();
+      await hydrateProfile();
       setHydrated(true);
     })();
-  }, [hydrateOnboarding, hydrateProfile, hydrateAuth]);
+  }, [hydrateOnboarding, hydrateProfile, hydrateAuth, hydrateContent]);
 
   if (!hydrated) return null;
 
@@ -68,6 +75,8 @@ export function RootNavigator() {
       <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="WarningSigns" component={WarningSignsScreen} />
+      <Stack.Screen name="SymptomCheckIn" component={SymptomCheckInScreen} />
+      <Stack.Screen name="MoodCheckIn" component={MoodCheckInScreen} />
       <Stack.Screen name="Tracking" component={TrackingScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
       <Stack.Screen name="ChatSupport" component={ChatSupportScreen} />

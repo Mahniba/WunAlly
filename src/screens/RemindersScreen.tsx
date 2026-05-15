@@ -32,9 +32,9 @@ export function RemindersScreen() {
     return <IconGeneral />;
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const title = newTitle.trim() || 'New reminder';
-    addReminder({ title, time: newTime.trim() || '9:00 AM', completed: false });
+    await addReminder({ title, time: newTime.trim() || '9:00 AM', iconType: 'general' });
     setNewTitle('');
     setNewTime('9:00 AM');
     setShowAdd(false);

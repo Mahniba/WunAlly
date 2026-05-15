@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { ScreenContainer, PrimaryButton } from '../components';
 import { useAuthStore } from '../store';
+import { getErrorMessage } from '../services/api/errors';
+import { resetAfterAuth } from '../navigation/authNavigation';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
@@ -24,10 +26,9 @@ export function SignUpScreen({ navigation }: any) {
         return;
       }
       await signUp(email, password, fullName);
-      // Navigate to ProfileCreate now that screen is registered
-      navigation.navigate('ProfileCreate');
-    } catch (err: any) {
-      setError(err.message || 'Sign up failed. Please try again.');
+      resetAfterAuth(navigation, false);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Sign up failed. Please try again.'));
     }
   };
 
