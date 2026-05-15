@@ -59,7 +59,7 @@ export function SymptomsChart({ days = 14 }: { days?: number }) {
           Symptoms (last {days} days)
           </Text>
           <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>
-            No symptom history yet. Use “Daily Symptom Check” from the Reminders tab to start tracking.
+            No symptom history yet. Use the Check-In tab to start tracking.
           </Text>
           <SecondaryButton
             title="Generate sample data"

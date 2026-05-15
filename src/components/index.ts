@@ -14,3 +14,4 @@ export { SymptomsCheck } from './SymptomsCheck';
 export { SymptomsChart } from './SymptomsChart';
 export { DoctorAlert } from './DoctorAlert';
 export { SymptomsSettings } from './SymptomsSettings';
+export { CheckInTabButton } from './CheckInTabButton';

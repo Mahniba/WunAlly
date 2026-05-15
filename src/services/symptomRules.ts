@@ -1,7 +1,7 @@
-import type { SymptomEntry, SymptomKeys } from '../store/useSymptomsStore';
+import type { SymptomEntry } from '../store/useSymptomsStore';
 
 export interface RuleAlert {
-  symptom: keyof SymptomEntry['symptoms'];
+  symptom: string;
   count: number;
   windowDays: number;
   message: string;
@@ -12,17 +12,18 @@ export function evaluateSymptomRules(entries: SymptomEntry[]): RuleAlert[] {
   const alerts: RuleAlert[] = [];
   const now = new Date();
 
-  function countInWindow(days: number, key: SymptomKeys) {
+  function countInWindow(days: number, key: string) {
     const thresholdDate = new Date();
     thresholdDate.setDate(now.getDate() - (days - 1));
     return entries.filter((e) => {
       const ed = new Date(e.date);
-      return ed >= thresholdDate && e.symptoms[key];
+      return ed >= thresholdDate && Boolean(e.symptoms[key]);
     }).length;
   }
 
   // rule examples: if >=4 in 7 days or >=6 in 14 days -> suggest doctor
-  const symptoms = Object.keys(entries[0]?.symptoms || { nausea: false, headache: false, dizzy: false }) as SymptomKeys[];
+  const example = { nausea: false, headache: false, dizzy: false };
+  const symptoms = Object.keys(entries[0]?.symptoms || example) as string[];
   for (const s of symptoms) {
     const c7 = countInWindow(7, s);
     if (c7 >= 4) {

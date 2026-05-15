@@ -1,19 +1,13 @@
 import { create } from 'zustand';
 import { getSymptomEntries, setSymptomEntries } from '../services/storage';
 
-export type SymptomKeys = 'nausea' | 'headache' | 'dizzy';
-
 export interface SymptomEntry {
   id: string;
   date: string; // ISO date
-  symptoms: Record<SymptomKeys, boolean>;
+  symptoms: Record<string, boolean>;
   notes?: string;
-  /**
-   * Lightweight wellness signals to personalize tips.
-   * These are optional to remain backward-compatible with stored entries.
-   */
-  sleepHours?: number; // last night
-  painLevel?: number; // 0-10
+  sleepHours?: number; // optional
+  painLevel?: number; // optional
   foodNote?: string;
 }
 

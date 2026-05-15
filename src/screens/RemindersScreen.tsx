@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
-import { ScreenContainer, PrimaryButton, SecondaryButton, ReminderItem, SymptomsCheck } from '../components';
+import { ScreenContainer, PrimaryButton, SecondaryButton, ReminderItem } from '../components';
 import { useRemindersStore } from '../store';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
@@ -19,7 +19,6 @@ export function RemindersScreen() {
   const { s, font, horizontalPadding } = useResponsive();
   const [ready, setReady] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
-  const [showSymptoms, setShowSymptoms] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newTime, setNewTime] = useState('9:00 AM');
 
@@ -147,11 +146,6 @@ export function RemindersScreen() {
           onPress={() => setShowAdd(true)}
           style={styles.addBtn}
         />
-        <SecondaryButton
-          title="Daily Symptom Check"
-          onPress={() => setShowSymptoms(true)}
-          style={{ marginTop: s(12) }}
-        />
       </ScrollView>
 
       <Modal visible={showAdd} transparent animationType="fade">
@@ -180,7 +174,7 @@ export function RemindersScreen() {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-      <SymptomsCheck visible={showSymptoms} onClose={() => setShowSymptoms(false)} />
+      {/* Daily symptom check moved to Check-In tab */}
     </ScreenContainer>
   );
 }

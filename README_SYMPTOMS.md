@@ -29,7 +29,7 @@ Manual test checklist
 
 2. Grant notifications permission when prompted (on a real device). The app will schedule a daily reminder at the stored time (default 09:00).
 
-3. Open the app and go to Reminders > press "Daily Symptom Check" to open the `SymptomsCheck` modal; record symptoms (nausea, headache, dizziness) and save.
+3. Open the app and go to the Check-In tab > choose a category (e.g. "Warning Signs") to open the symptoms checklist; record symptoms and save.
 
 4. Verify that the entry persists across app restarts: entries are stored under key `@wunally/symptom_entries` (see AsyncStorage / `src/services/storage.ts`).
 

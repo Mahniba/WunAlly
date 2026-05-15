@@ -17,7 +17,7 @@ interface PrimaryButtonProps {
   loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
-  variant?: 'coral' | 'lavender' | 'sos';
+  variant?: 'coral' | 'lavender' | 'peach' | 'sos';
 }
 
 export function PrimaryButton({
@@ -29,7 +29,14 @@ export function PrimaryButton({
   textStyle,
   variant = 'coral',
 }: PrimaryButtonProps) {
-  const bg = variant === 'sos' ? colors.sos : variant === 'lavender' ? colors.lavender : colors.coral;
+  const bg =
+    variant === 'sos'
+      ? colors.sos
+      : variant === 'lavender'
+      ? colors.lavender
+      : variant === 'peach'
+      ? colors.peachDark
+      : colors.coral;
   const minHeight = Math.max(MIN_TOUCH_TARGET, 52);
   return (
     <TouchableOpacity
