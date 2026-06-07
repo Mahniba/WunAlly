@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import { ScreenContainer, WeekProgress, FloatingSOSButton, FloatingVoiceButton } from '../components';
+import {
+  TabScreenContainer,
+  WeekProgress,
+  FloatingSOSButton,
+  FloatingVoiceButton,
+  AppIcon,
+  SectionHeader,
+} from '../components';
 import MoodSummary from '../components/MoodSummary';
 import { useSidebar } from '../context/SidebarContext';
 import { useProfileStore } from '../store';
@@ -9,10 +17,12 @@ import { useContentStore } from '../store/useContentStore';
 import { usePersonalizedTips } from '../hooks/usePersonalizedTips';
 import { getWeekInfo } from '../utils/weekData';
 import { colorFromKey } from '../utils/contentColors';
+import { iconForHomeAction } from '../utils/iconMap';
 import { useResponsive } from '../hooks/useResponsive';
-import { colors, typography } from '../theme';
+import { colors, typography, shadows } from '../theme';
 
 export function DashboardScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const parent = navigation.getParent() as { navigate: (name: string, params?: object) => void } | undefined;
   const profile = useProfileStore((s) => s.profile);
@@ -21,6 +31,8 @@ export function DashboardScreen() {
   const loaded = useContentStore((s) => s.loaded);
   const hydrateContent = useContentStore((s) => s.hydrate);
   const { s, sVertical, font, horizontalPadding } = useResponsive();
+  const GRID_GUTTER = s(12); // single source of spacing for the quick-actions grid
+  const SECTION_SPACING = sVertical(20);
   const name = profile?.name || 'there';
   const week = profile?.weeksPregnant;
   const resolvedWeek = week ? Math.max(1, Math.min(42, week)) : 1;
@@ -45,63 +57,91 @@ export function DashboardScreen() {
     },
     greetingWrap: { flex: 1 },
     greeting: {
-      fontSize: font(typography.sizes.xxl),
+      fontSize: font(typography.sizes.title),
       fontWeight: typography.weights.bold,
       color: colors.textPrimary,
-    },
-    menuBtn: {
-      minWidth: 44,
-      minHeight: 44,
-      justifyContent: 'center',
-      alignItems: 'flex-end',
-    },
-    menuIcon: { fontSize: 24, color: colors.textPrimary },
-    content: {
-      paddingHorizontal: horizontalPadding,
-      paddingTop: sVertical(4),
-      paddingBottom: sVertical(120),
-      flexGrow: 1,
+      letterSpacing: -0.5,
     },
     weeks: {
       fontSize: font(typography.sizes.base),
       color: colors.textSecondary,
-      marginBottom: sVertical(24),
+      marginTop: s(4),
     },
-    cardWrap: { marginBottom: sVertical(24) },
+    menuBtn: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...shadows.sm,
+    },
+    content: {
+      paddingHorizontal: horizontalPadding,
+      paddingTop: sVertical(8),
+      paddingBottom: sVertical(120),
+      flexGrow: 1,
+    },
+    cardWrap: { marginBottom: SECTION_SPACING },
+    section: { marginBottom: SECTION_SPACING },
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginHorizontal: -s(6),
+      marginHorizontal: -(GRID_GUTTER / 2),
     },
     gridItem: {
       width: '50%',
-      padding: s(6),
+      padding: GRID_GUTTER / 2,
     },
     actionCard: {
+      backgroundColor: colors.surface,
       borderRadius: 16,
-      paddingVertical: s(18),
+      paddingVertical: s(16),
       paddingHorizontal: s(12),
-      minHeight: s(88),
-      justifyContent: 'center',
+      minHeight: s(96),
       alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      ...shadows.sm,
+    },
+    actionCardSos: {
+      backgroundColor: colors.sos,
+      borderColor: colors.sos,
+    },
+    iconCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: s(8),
     },
     actionTitle: {
       fontSize: font(typography.sizes.sm),
       fontWeight: typography.weights.semibold,
       textAlign: 'center',
+      letterSpacing: 0.1,
     },
     tipCard: {
-      backgroundColor: colors.chipTrack,
+      backgroundColor: colors.surface,
       borderRadius: 16,
       padding: s(16),
-      marginBottom: sVertical(20),
+      marginBottom: SECTION_SPACING,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.borderLight,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.coralDark,
+      ...shadows.sm,
     },
     tipLabel: {
-      fontSize: font(typography.sizes.sm),
+      fontSize: font(typography.sizes.xs),
       fontWeight: typography.weights.semibold,
       color: colors.coralDark,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
       marginBottom: s(6),
     },
     tipTitle: {
@@ -109,6 +149,7 @@ export function DashboardScreen() {
       fontWeight: typography.weights.semibold,
       color: colors.textPrimary,
       marginBottom: 4,
+      lineHeight: 22,
     },
     tipBody: {
       fontSize: font(typography.sizes.sm),
@@ -124,6 +165,8 @@ export function DashboardScreen() {
       const params =
         item.nav === 'Tracking' && week
           ? { week: Math.max(1, Math.min(42, week)) }
+          : item.nav === 'Chat'
+          ? { mode: 'ai' as const }
           : undefined;
       parent?.navigate(item.nav, params);
     }
@@ -132,80 +175,117 @@ export function DashboardScreen() {
   const openSidebar = useSidebar().openSidebar;
 
   return (
-    <ScreenContainer>
+    <TabScreenContainer>
       <View style={styles.topBar}>
         <View style={styles.greetingWrap}>
           <Text style={styles.greeting} allowFontScaling maxFontSizeMultiplier={1.3}>
-            Hello, {name}!
+            {t('home.greeting', { name })}
           </Text>
+          {week ? (
+            <Text style={styles.weeks} allowFontScaling maxFontSizeMultiplier={1.3}>
+              {t('home.weekOf', { week })}
+            </Text>
+          ) : (
+            <Text style={styles.weeks}>{t('home.completeProfile')}</Text>
+          )}
         </View>
-        <TouchableOpacity style={styles.menuBtn} onPress={openSidebar} accessibilityLabel="Open menu">
-          <Text style={styles.menuIcon}>☰</Text>
+        <TouchableOpacity
+          style={styles.menuBtn}
+          onPress={openSidebar}
+          accessibilityLabel={t('home.openMenu')}
+        >
+          <AppIcon name="menu" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {week ? (
-          <Text style={styles.weeks} allowFontScaling maxFontSizeMultiplier={1.3}>
-            You are {week} weeks pregnant.
-          </Text>
-        ) : (
-          <Text style={styles.weeks}>Complete your profile to see your pregnancy week.</Text>
-        )}
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+      >
         {week && weekInfo ? (
           <View style={styles.cardWrap}>
-            <WeekProgress week={week} babySizeDescription={weekInfo.babySize} />
+            <WeekProgress week={week} />
           </View>
         ) : null}
+
         {tipsLoading ? (
-          <ActivityIndicator color={colors.coral} style={{ marginBottom: sVertical(16) }} />
+          <ActivityIndicator color={colors.coralDark} style={{ marginBottom: sVertical(16) }} />
         ) : topTip ? (
           <TouchableOpacity
             style={styles.tipCard}
             onPress={() => parent?.navigate('Tracking', { week: resolvedWeek })}
-            activeOpacity={0.9}
+            activeOpacity={0.92}
             accessibilityRole="button"
-            accessibilityLabel="View all personalized tips"
+            accessibilityLabel={t('home.tipA11y')}
           >
-            <Text style={styles.tipLabel}>Tip for you</Text>
+            <Text style={styles.tipLabel}>{t('home.tipLabel')}</Text>
             <Text style={styles.tipTitle}>{topTip.title}</Text>
             <Text style={styles.tipBody} numberOfLines={3}>
               {topTip.body}
             </Text>
           </TouchableOpacity>
         ) : null}
-        <View style={styles.grid}>
-          {!loaded ? (
-            <ActivityIndicator color={colors.coral} style={{ margin: 24 }} />
-          ) : (
-            homeActions.map((item) => (
-              <View key={item.key} style={styles.gridItem}>
-                <TouchableOpacity
-                  style={[styles.actionCard, { backgroundColor: colorFromKey(item.color_key) }]}
-                  onPress={() => handleAction(item)}
-                  activeOpacity={0.85}
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel={item.title}
-                >
-                  <Text
-                    style={[
-                      styles.actionTitle,
-                      { color: item.key === 'sos' ? '#FFFFFF' : colors.textPrimary },
-                    ]}
-                    allowFontScaling
-                    maxFontSizeMultiplier={1.2}
-                  >
-                    {item.title}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))
-          )}
+
+        <View style={styles.section}>
+          <SectionHeader title={t('home.quickActions')} subtitle={t('home.quickActionsSub')} />
+          <View style={styles.grid}>
+            {!loaded ? (
+              <ActivityIndicator color={colors.coralDark} style={{ margin: 24 }} />
+            ) : (
+              homeActions.map((item) => {
+                const isSos = item.key === 'sos';
+                const tint = colorFromKey(item.color_key);
+                const iconColor = isSos ? '#FFFFFF' : colors.coralDark;
+
+                return (
+                  <View key={item.key} style={styles.gridItem}>
+                    <TouchableOpacity
+                      style={[styles.actionCard, isSos && styles.actionCardSos]}
+                      onPress={() => handleAction(item)}
+                      activeOpacity={0.88}
+                      accessible
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                    >
+                      <View
+                        style={[
+                          styles.iconCircle,
+                          { backgroundColor: isSos ? 'rgba(255,255,255,0.2)' : tint },
+                        ]}
+                      >
+                        <AppIcon
+                          name={iconForHomeAction(item.key)}
+                          size={20}
+                          color={iconColor}
+                        />
+                      </View>
+                      <Text
+                        style={[
+                          styles.actionTitle,
+                          { color: isSos ? '#FFFFFF' : colors.textPrimary },
+                        ]}
+                        allowFontScaling
+                        maxFontSizeMultiplier={1.2}
+                      >
+                        {item.title}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })
+            )}
+          </View>
         </View>
+
         <MoodSummary />
       </ScrollView>
-      <FloatingVoiceButton onPress={() => parent?.navigate('Chat')} />
+
+      <FloatingVoiceButton onPress={() => parent?.navigate('Chat', { mode: 'ai', voice: true })} />
       <FloatingSOSButton onPress={() => parent?.navigate('SOS')} />
-    </ScreenContainer>
+    </TabScreenContainer>
   );
 }

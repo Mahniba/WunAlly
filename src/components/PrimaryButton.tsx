@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../theme';
+import { colors, spacing, borderRadius, typography, shadows } from '../theme';
 import { MIN_TOUCH_TARGET } from '../constants';
 
 interface PrimaryButtonProps {
@@ -20,6 +20,13 @@ interface PrimaryButtonProps {
   variant?: 'coral' | 'lavender' | 'peach' | 'sos';
 }
 
+const VARIANT_COLORS = {
+  coral: { bg: colors.coralDark, text: '#FFFFFF' },
+  lavender: { bg: colors.lavenderDark, text: '#FFFFFF' },
+  peach: { bg: colors.peachDark, text: colors.textPrimary },
+  sos: { bg: colors.sos, text: '#FFFFFF' },
+} as const;
+
 export function PrimaryButton({
   title,
   onPress,
@@ -29,15 +36,9 @@ export function PrimaryButton({
   textStyle,
   variant = 'coral',
 }: PrimaryButtonProps) {
-  const bg =
-    variant === 'sos'
-      ? colors.sos
-      : variant === 'lavender'
-      ? colors.lavender
-      : variant === 'peach'
-      ? colors.peachDark
-      : colors.coral;
+  const palette = VARIANT_COLORS[variant];
   const minHeight = Math.max(MIN_TOUCH_TARGET, 52);
+
   return (
     <TouchableOpacity
       accessible
@@ -45,20 +46,22 @@ export function PrimaryButton({
       accessibilityLabel={title}
       style={[
         styles.button,
-        { backgroundColor: bg, minHeight },
+        shadows.sm,
+        { backgroundColor: palette.bg, minHeight },
         disabled && styles.disabled,
         style,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.85}
+      activeOpacity={0.88}
     >
       {loading ? (
-        <ActivityIndicator color="#FFF" />
+        <ActivityIndicator color={palette.text} />
       ) : (
         <Text
           style={[
             styles.text,
+            { color: palette.text },
             variant === 'sos' && styles.textSos,
             textStyle,
           ]}
@@ -73,19 +76,20 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
   },
-  disabled: { opacity: 0.6 },
+  disabled: { opacity: 0.5 },
   text: {
     fontSize: typography.sizes.base,
     fontWeight: typography.weights.semibold,
-    color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   textSos: {
     fontWeight: typography.weights.bold,
+    letterSpacing: 0.5,
   },
 });

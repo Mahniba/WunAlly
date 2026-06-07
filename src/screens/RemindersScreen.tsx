@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
-import { ScreenContainer, PrimaryButton, SecondaryButton, ReminderItem } from '../components';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { TabScreenContainer, PrimaryButton, SecondaryButton, ReminderItem, KeyboardAwareScrollView, KeyboardModal } from '../components';
 import { useRemindersStore } from '../store';
+import { useContentStore } from '../store/useContentStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
@@ -16,6 +17,8 @@ function IconGeneral() { return <Text style={iconStyles.icon}>🔔</Text>; }
 
 export function RemindersScreen() {
   const { reminders, toggleReminder, addReminder, removeReminder, hydrate, setReminders } = useRemindersStore();
+  const presets = useContentStore((s) => s.content.reminder_presets);
+  const hydrateContent = useContentStore((s) => s.hydrate);
   const { s, font, horizontalPadding } = useResponsive();
   const [ready, setReady] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -23,8 +26,9 @@ export function RemindersScreen() {
   const [newTime, setNewTime] = useState('9:00 AM');
 
   React.useEffect(() => {
+    hydrateContent();
     hydrate().then(() => setReady(true));
-  }, [hydrate]);
+  }, [hydrate, hydrateContent]);
 
   const getIcon = (iconType?: string) => {
     if (iconType === 'doctor') return <IconDoctor />;
@@ -108,7 +112,7 @@ export function RemindersScreen() {
   });
 
   return (
-    <ScreenContainer>
+    <TabScreenContainer>
       <View style={styles.header}>
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
           Reminders
@@ -123,7 +127,7 @@ export function RemindersScreen() {
           <Text style={styles.trashIcon}>🗑</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         {reminders.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyText}>No reminders yet. Add one below.</Text>
@@ -146,12 +150,32 @@ export function RemindersScreen() {
           onPress={() => setShowAdd(true)}
           style={styles.addBtn}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
-      <Modal visible={showAdd} transparent animationType="fade">
+      <KeyboardModal visible={showAdd} transparent animationType="fade" justify="flex-end">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowAdd(false)}>
           <TouchableOpacity style={styles.modalBox} activeOpacity={1} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.modalTitle}>Add Reminder</Text>
+            {presets.length > 0 && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                {presets.map((p) => (
+                  <TouchableOpacity
+                    key={p.key}
+                    onPress={() => {
+                      setNewTitle(p.title);
+                    }}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: 8,
+                      backgroundColor: colors.chipReminders,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: colors.textPrimary }}>{p.title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
             <TextInput
               style={styles.modalInput}
               value={newTitle}
@@ -173,8 +197,8 @@ export function RemindersScreen() {
             </View>
           </TouchableOpacity>
         </TouchableOpacity>
-      </Modal>
+      </KeyboardModal>
       {/* Daily symptom check moved to Check-In tab */}
-    </ScreenContainer>
+    </TabScreenContainer>
   );
 }

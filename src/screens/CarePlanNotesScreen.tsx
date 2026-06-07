@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
-import { ScreenContainer, ScreenHeader, PrimaryButton } from '../components';
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { ScreenContainer, ScreenHeader, PrimaryButton, KeyboardAwareScrollView } from '../components';
 import { useCarePlanStore } from '../store/useCarePlanStore';
 import { getErrorMessage } from '../services/api/errors';
 import { useResponsive } from '../hooks/useResponsive';
@@ -65,7 +65,7 @@ export function CarePlanNotesScreen() {
   return (
     <ScreenContainer>
       <ScreenHeader title="Care Plan Notes" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView withHeader style={styles.scroll} contentContainerStyle={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Medical (allergies & illnesses)</Text>
           <Text style={styles.sectionDesc}>
@@ -94,14 +94,13 @@ export function CarePlanNotesScreen() {
             multiline
           />
         </View>
-      </ScrollView>
-      <View style={{ paddingHorizontal: horizontalPadding, paddingBottom: s(18) }}>
         <PrimaryButton
           title={saving ? 'Saving…' : 'Save'}
           onPress={handleSave}
           disabled={saving}
+          style={{ marginTop: s(8) }}
         />
-      </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

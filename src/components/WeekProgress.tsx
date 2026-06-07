@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Card } from './Card';
 import { colors, typography, spacing } from '../theme';
-import { getAfricanFruitForWeek } from '../utils/weekData';
+import { getBabySizeVisual } from '../utils/weekData';
 import BananaSvg from './art/BananaSvg';
 import WatermelonSvg from './art/WatermelonSvg';
 import MangoSvg from './art/MangoSvg';
@@ -12,56 +13,85 @@ import PregnantIllustration from './art/PregnantIllustration';
 
 interface WeekProgressProps {
   week: number;
-  babySizeDescription: string;
-  illustration?: React.ReactNode;
 }
 
-export function WeekProgress({
-  week,
-  babySizeDescription,
-  illustration,
-}: WeekProgressProps) {
-  const fruit = getAfricanFruitForWeek(week);
-  const artMap: Record<string, React.ReactNode> = {
-    banana: <BananaSvg size={56} />,
-    watermelon: <WatermelonSvg size={56} />,
-    mango: <MangoSvg size={56} />,
-    coconut: <CoconutSvg size={56} />,
-    yam: <YamSvg size={56} />,
-    pregnant: <PregnantIllustration size={56} />,
-  };
+const ART_MAP = {
+  banana: BananaSvg,
+  watermelon: WatermelonSvg,
+  mango: MangoSvg,
+  coconut: CoconutSvg,
+  yam: YamSvg,
+  pregnant: PregnantIllustration,
+} as const;
+
+export function WeekProgress({ week }: WeekProgressProps) {
+  const { t } = useTranslation();
+  const { babySize, development, artKey } = getBabySizeVisual(week);
+  const Art = ART_MAP[artKey];
+
   return (
-    <Card>
-      <View style={styles.header}>
-        <Text style={styles.weekLabel} allowFontScaling>
-          Week {week}
-        </Text>
+    <Card variant="outlined">
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>{t('home.weekBadge', { week })}</Text>
       </View>
       <View style={styles.content}>
         <View style={styles.illustration}>
-          {illustration ?? (fruit.artKey ? artMap[fruit.artKey] ?? <Text style={styles.illustrationPlaceholder}>{fruit.emoji}</Text> : <Text style={styles.illustrationPlaceholder}>{fruit.emoji}</Text>)}
+          <Art size={48} />
         </View>
-        <Text style={styles.description} allowFontScaling>
-          Your baby is as big as {fruit.label}.
-        </Text>
+        <View style={styles.textBlock}>
+          <Text style={styles.description} allowFontScaling>
+            {t('home.babySize', { size: babySize })}
+          </Text>
+          {development ? (
+            <Text style={styles.subdescription} allowFontScaling numberOfLines={3}>
+              {development}
+            </Text>
+          ) : null}
+        </View>
       </View>
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { marginBottom: spacing.xs },
-  weekLabel: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
-    color: colors.textPrimary,
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.backgroundSecondary,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+    borderRadius: 8,
+    marginBottom: spacing.sm,
   },
-  content: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  illustration: { width: 56, height: 56, justifyContent: 'center', alignItems: 'center' },
-  illustrationPlaceholder: { fontSize: 32 },
+  badgeText: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.coralDark,
+    letterSpacing: 0.2,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  illustration: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: colors.backgroundSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textBlock: { flex: 1 },
   description: {
-    flex: 1,
     fontSize: typography.sizes.base,
+    fontWeight: typography.weights.medium,
+    color: colors.textPrimary,
+    lineHeight: 22,
+  },
+  subdescription: {
+    fontSize: typography.sizes.sm,
     color: colors.textSecondary,
+    marginTop: spacing.xxs,
+    lineHeight: 18,
   },
 });

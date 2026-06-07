@@ -9,6 +9,7 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
+  Language: undefined;
   Onboarding: undefined;
   Login: undefined;
   SignUp: undefined;
@@ -21,11 +22,21 @@ export type RootStackParamList = {
   WarningSigns: undefined;
   SymptomCheckIn: { symptomCategory: string; title: string; showExtras?: boolean };
   MoodCheckIn: undefined;
-  Chat: undefined;
+  Chat: {
+    mode?: 'ai' | 'nurse';
+    providerId?: number;
+    providerName?: string;
+    voice?: boolean;
+  };
   ChatSupport: undefined;
   CarePlanNotes: undefined;
   SOS: undefined;
   Privacy: undefined;
+  NurseDirectory: undefined;
+  Facilities: undefined;
+  EmergencyGuide: undefined;
+  StudyConsent: undefined;
+  SUSQuestionnaire: undefined;
 };
 
 declare global {

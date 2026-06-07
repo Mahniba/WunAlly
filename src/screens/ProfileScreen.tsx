@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ScreenContainer, Card, SecondaryButton, SymptomsSettings, SymptomsChart } from '../components';
+import {
+  TabScreenContainer,
+  Card,
+  SecondaryButton,
+  SymptomsSettings,
+  SymptomsChart,
+  LanguageSelector,
+} from '../components';
 import { useProfileStore } from '../store';
 import { useContentStore } from '../store/useContentStore';
 import { WeekProgress } from '../components';
-import { getWeekInfo } from '../utils/weekData';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import { useSymptomsStore } from '../store/useSymptomsStore';
+import { useTranslation } from 'react-i18next';
 
 export function ProfileScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const profile = useProfileStore((s) => s.profile);
   const hydrateProfile = useProfileStore((s) => s.hydrate);
@@ -42,19 +50,19 @@ export function ProfileScreen() {
   });
 
   return (
-    <ScreenContainer>
+    <TabScreenContainer>
       <View style={styles.header}>
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
-          Profile
+          {t('profile.title')}
         </Text>
       </View>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card>
-          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>Name</Text>
+          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>{t('profile.name')}</Text>
           <Text style={styles.value} allowFontScaling maxFontSizeMultiplier={1.3}>{profile?.name || '—'}</Text>
-          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>Weeks Pregnant</Text>
+          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>{t('profile.weeksPregnant')}</Text>
           <Text style={styles.value} allowFontScaling maxFontSizeMultiplier={1.3}>{profile?.weeksPregnant ?? '—'}</Text>
-          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>Due Date</Text>
+          <Text style={styles.label} allowFontScaling maxFontSizeMultiplier={1.3}>{t('profile.dueDate')}</Text>
           <Text style={styles.value} allowFontScaling maxFontSizeMultiplier={1.3}>{profile?.dueDate || '—'}</Text>
         </Card>
 
@@ -80,39 +88,29 @@ export function ProfileScreen() {
                 })()
               : 1;
 
-            const weekInfo = getWeekInfo(weekNum);
-            const emojiForWeek = (w: number) => {
-              if (w <= 4) return '🌱';
-              if (w <= 9) return '🌸';
-              if (w <= 13) return '🍓';
-              if (w <= 17) return '🍋';
-              if (w <= 23) return '🍌';
-              if (w <= 27) return '🌽';
-              if (w <= 31) return '🍆';
-              if (w <= 35) return '🍈';
-              if (w <= 40) return '🍉';
-              if (w <= 42) return '🎃';
-              return '👶';
-            };
-
             return (
               <View style={{ marginTop: 16 }}>
-                <WeekProgress
-                  week={weekNum}
-                  babySizeDescription={weekInfo.babySize}
-                  illustration={<Text style={{ fontSize: 32 }}>{emojiForWeek(weekNum)}</Text>}
-                />
+                <WeekProgress week={weekNum} />
               </View>
             );
           })()
         ) : null}
+        {profile?.healthConditions ? (
+          <Card style={{ marginTop: s(12) }}>
+            <Text style={styles.label}>{t('profile.healthNotes')}</Text>
+            <Text style={styles.value}>{profile.healthConditions}</Text>
+          </Card>
+        ) : null}
         <SecondaryButton
-          title="Care Plan Notes"
+          title={t('profile.carePlan')}
           onPress={() => navigation.navigate('CarePlanNotes')}
           style={styles.btn}
         />
+        <View style={{ marginTop: s(12) }}>
+          <LanguageSelector />
+        </View>
         <SecondaryButton
-          title="Symptom Settings"
+          title={t('profile.symptomSettings')}
           onPress={() => setShowSettings(true)}
           style={styles.smallBtn}
         />
@@ -120,17 +118,27 @@ export function ProfileScreen() {
           <SymptomsChart days={14} />
         </Card>
         <SecondaryButton
-          title="Chat & Support"
+          title={t('profile.chatSupport')}
           onPress={() => navigation.navigate('ChatSupport')}
           style={styles.btn}
         />
         <SecondaryButton
-          title="Privacy"
+          title={t('profile.studyConsent')}
+          onPress={() => navigation.navigate('StudyConsent')}
+          style={styles.smallBtn}
+        />
+        <SecondaryButton
+          title={t('profile.sus')}
+          onPress={() => navigation.navigate('SUSQuestionnaire')}
+          style={styles.smallBtn}
+        />
+        <SecondaryButton
+          title={t('profile.privacy')}
           onPress={() => navigation.navigate('Privacy')}
           style={styles.btn}
         />
       </ScrollView>
       <SymptomsSettings visible={showSettings} onClose={() => setShowSettings(false)} />
-    </ScreenContainer>
+    </TabScreenContainer>
   );
 }

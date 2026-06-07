@@ -1,10 +1,15 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, Platform } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { colors, typography } from '../theme';
+import { AppIcon } from './AppIcon';
+import { colors, typography, shadows } from '../theme';
 
 export function CheckInTabButton(props: BottomTabBarButtonProps) {
-  const { onPress, accessibilityState } = props as any;
+  const { t } = useTranslation();
+  const { onPress, accessibilityState } = props as BottomTabBarButtonProps & {
+    onPress?: () => void;
+  };
   const focused = accessibilityState?.selected;
 
   return (
@@ -12,13 +17,17 @@ export function CheckInTabButton(props: BottomTabBarButtonProps) {
       accessibilityRole="button"
       accessibilityState={accessibilityState}
       onPress={onPress}
-      activeOpacity={0.85}
+      activeOpacity={0.9}
       style={styles.container}
     >
-      <View style={[styles.pill, focused && styles.pillFocused]}>
-        <Text style={[styles.icon, focused && styles.iconFocused]}>❤️</Text>
+      <View style={[styles.fab, focused && styles.fabFocused, shadows.md]}>
+        <AppIcon
+          name="heart"
+          size={22}
+          color={focused ? '#FFFFFF' : colors.coralDark}
+        />
       </View>
-      <Text style={[styles.label, focused && styles.labelFocused]}>Check In</Text>
+      <Text style={[styles.label, focused && styles.labelFocused]}>{t('tabs.checkIn')}</Text>
     </TouchableOpacity>
   );
 }
@@ -26,26 +35,23 @@ export function CheckInTabButton(props: BottomTabBarButtonProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    top: -14,
     width: 72,
   },
-  pill: {
-    width: 44,
-    height: 28,
-    borderRadius: 14,
+  fab: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.coralDark,
   },
-  pillFocused: {
-    backgroundColor: colors.softPink,
-  },
-  icon: {
-    fontSize: 18,
-    color: colors.textMuted,
-  },
-  iconFocused: {
-    color: colors.coralDark,
+  fabFocused: {
+    backgroundColor: colors.coralDark,
+    borderColor: colors.coralDark,
   },
   label: {
     marginTop: 4,

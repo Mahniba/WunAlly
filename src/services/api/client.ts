@@ -121,6 +121,10 @@ export async function apiRequest<T>(
     }
   }
 
+  if (res.status === 401 && !anonymous) {
+    await clearTokens();
+  }
+
   const data = await parseResponse<unknown>(res);
 
   if (!res.ok) {
@@ -149,13 +153,12 @@ export async function restoreSession(): Promise<SessionStatus> {
   const refresh = await getRefreshToken();
   if (!refresh) return 'invalid';
 
-  const access = await getAccessToken();
-  if (access) return 'ok';
-
   const refreshed = await refreshAccessToken();
   if (refreshed) return 'ok';
 
-  // Still have refresh in storage but could not reach server
+  const access = await getAccessToken();
+  if (access) return 'offline';
+
   const stillHasRefresh = await getRefreshToken();
   return stillHasRefresh ? 'offline' : 'invalid';
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import { PrimaryButton, SecondaryButton } from './index';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { PrimaryButton, SecondaryButton, KeyboardModal } from './index';
 import { useSymptomsStore } from '../store/useSymptomsStore';
 import { colors, typography } from '../theme';
 
@@ -63,9 +63,10 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
   );
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <KeyboardModal visible={visible} transparent animationType="fade">
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <TouchableOpacity activeOpacity={1} style={styles.box} onPress={(e) => e.stopPropagation()}>
+          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>Daily Symptom Check</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Nausea</Text>
@@ -117,8 +118,9 @@ export function SymptomsCheck({ visible, onClose }: { visible: boolean; onClose:
             <SecondaryButton title="Cancel" onPress={onClose} />
             <PrimaryButton title="Save" onPress={handleSave} />
           </View>
+          </ScrollView>
         </TouchableOpacity>
       </TouchableOpacity>
-    </Modal>
+    </KeyboardModal>
   );
 }

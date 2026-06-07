@@ -4,13 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Alert,
   TextInput,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
-import { ScreenContainer, PrimaryButton, SecondaryButton } from '../components';
+import { ScreenContainer, PrimaryButton, SecondaryButton, KeyboardAwareScrollView } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import { useSymptomsStore } from '../store/useSymptomsStore';
@@ -107,7 +106,7 @@ export function SymptomCheckInScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
       </View>
-      <ScrollView contentContainerStyle={{ paddingBottom: s(40) }}>
+      <KeyboardAwareScrollView contentContainerStyle={{ paddingBottom: s(40), paddingHorizontal: horizontalPadding }}>
         {isWarning ? (
           <View style={styles.infoBox}>
             <Text style={{ color: colors.textPrimary, fontWeight: typography.weights.semibold }}>
@@ -176,7 +175,7 @@ export function SymptomCheckInScreen() {
           <SecondaryButton title="None today" onPress={handleNone} />
           <PrimaryButton variant="peach" title="Save & Continue" onPress={handleSave} style={{ marginTop: 8 }} />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

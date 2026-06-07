@@ -10,6 +10,7 @@ interface ScreenContainerProps {
   edges?: ('top' | 'bottom' | 'left' | 'right')[];
 }
 
+/** Full-screen wrapper — includes bottom safe area (stack/modal screens). */
 export function ScreenContainer({
   children,
   style,
@@ -24,6 +25,18 @@ export function ScreenContainer({
     paddingRight: edges.includes('right') ? Math.max(insets.right, horizontalPadding) : 0,
   };
   return <View style={[styles.container, padding, style]}>{children}</View>;
+}
+
+/** Tab screens — bottom safe area is handled by the tab bar, not the screen. */
+export function TabScreenContainer({
+  children,
+  style,
+}: Pick<ScreenContainerProps, 'children' | 'style'>) {
+  return (
+    <ScreenContainer edges={['top', 'left', 'right']} style={style}>
+      {children}
+    </ScreenContainer>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -1,20 +1,28 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, shadows } from '../theme';
 
 interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   onPress?: () => void;
+  variant?: 'elevated' | 'outlined' | 'flat';
 }
 
-export function Card({ children, style, onPress }: CardProps) {
+export function Card({ children, style, onPress, variant = 'elevated' }: CardProps) {
   const Wrapper = onPress ? TouchableOpacity : View;
+  const variantStyle =
+    variant === 'outlined'
+      ? styles.outlined
+      : variant === 'flat'
+      ? styles.flat
+      : styles.elevated;
+
   return (
     <Wrapper
-      style={[styles.card, style]}
+      style={[styles.card, variantStyle, style]}
       onPress={onPress}
-      activeOpacity={0.9}
+      activeOpacity={0.92}
       accessible={!!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
     >
@@ -28,10 +36,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
     padding: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+  },
+  elevated: {
+    ...shadows.sm,
+  },
+  outlined: {
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  flat: {
+    backgroundColor: colors.backgroundSecondary,
   },
 });

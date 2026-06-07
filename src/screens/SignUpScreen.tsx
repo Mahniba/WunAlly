@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { ScreenContainer, PrimaryButton } from '../components';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ScreenContainer, PrimaryButton, KeyboardAwareScrollView } from '../components';
 import { useAuthStore } from '../store';
 import { getErrorMessage } from '../services/api/errors';
 import { resetAfterAuth } from '../navigation/authNavigation';
@@ -34,8 +34,10 @@ export function SignUpScreen({ navigation }: any) {
 
   const styles = StyleSheet.create({
     content: {
+      flexGrow: 1,
       paddingHorizontal: s(24),
       paddingVertical: sVertical(24),
+      paddingBottom: sVertical(48),
     },
     title: {
       fontSize: font(typography.sizes.title),
@@ -143,7 +145,7 @@ export function SignUpScreen({ navigation }: any) {
 
   return (
     <ScreenContainer>
-      <ScrollView contentContainerStyle={styles.content}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
           Create Account
         </Text>
@@ -237,7 +239,7 @@ export function SignUpScreen({ navigation }: any) {
             <Text style={styles.loginLink}>Sign In</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

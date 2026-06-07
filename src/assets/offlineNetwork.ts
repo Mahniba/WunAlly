@@ -1,0 +1,58 @@
+import type { FacilitiesDirectoryCopy, NetworkHubCopy, NurseDirectoryCopy } from '../services/api/content';
+
+export const OFFLINE_NETWORK_HUB: NetworkHubCopy = {
+  title_en: 'Health Support Network',
+  title_fr: 'Réseau de soutien santé',
+  subtitle_en: 'Connect with nurses, AI support, and local care resources.',
+  subtitle_fr: 'Connectez-vous aux infirmières, au soutien IA et aux ressources locales.',
+};
+
+export const OFFLINE_NURSE_DIRECTORY: NurseDirectoryCopy = {
+  title_en: 'Find a nurse',
+  title_fr: 'Trouver une infirmière',
+  subtitle_en: 'Available nurses appear on the nearest orbit. Tap one to connect.',
+  subtitle_fr: "Les infirmières disponibles apparaissent sur l'orbite la plus proche. Touchez pour vous connecter.",
+  scanning_en: 'Searching for nurses…',
+  scanning_fr: 'Recherche d\'infirmières…',
+  hub_scanning_en: 'Scanning',
+  hub_scanning_fr: 'Recherche',
+  hub_you_en: 'You',
+  hub_you_fr: 'Vous',
+  found_online_en: '{count} nurse available',
+  found_online_plural_en: '{count} nurses available',
+  found_online_fr: '{count} infirmière disponible',
+  found_online_plural_fr: '{count} infirmières disponibles',
+  scan_again_en: 'Scan again',
+  scan_again_fr: 'Relancer la recherche',
+  more_nurses_en: 'More available',
+  more_nurses_fr: 'Autres disponibles',
+  empty_title_en: 'No nurses on the network',
+  empty_title_fr: 'Aucune infirmière sur le réseau',
+  empty_body_en: 'No nurses are online right now. Try AI chat or scan again later.',
+  empty_body_fr: 'Aucune infirmière en ligne pour le moment. Essayez le chat IA ou réessayez plus tard.',
+  status_offline_en: 'No nurses online',
+  status_offline_fr: 'Aucune infirmière en ligne',
+  online_en: 'Online',
+  online_fr: 'En ligne',
+  offline_en: 'Offline',
+  offline_fr: 'Hors ligne',
+  pick_nurse_en: 'Start chat',
+  pick_nurse_fr: 'Démarrer le chat',
+  languages_en: 'Languages',
+  languages_fr: 'Langues',
+  no_assignment_en: 'No nurse assigned yet. Find one on the network.',
+  no_assignment_fr: 'Aucune infirmière assignée. Trouvez-en une sur le réseau.',
+};
+
+export const OFFLINE_FACILITIES_DIRECTORY: FacilitiesDirectoryCopy = {
+  subtitle_en: 'Hospitals and clinics from the pilot network list.',
+  subtitle_fr: 'Hôpitaux et cliniques de la liste pilote du réseau.',
+  empty_title_en: 'No facilities listed',
+  empty_title_fr: 'Aucun établissement répertorié',
+  empty_body_en: 'Facility data is not available right now. Try again later.',
+  empty_body_fr: 'Les établissements ne sont pas disponibles pour le moment. Réessayez plus tard.',
+  services_en: 'Services',
+  services_fr: 'Services',
+  call_en: 'Call',
+  call_fr: 'Appeler',
+};

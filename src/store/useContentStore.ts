@@ -4,10 +4,19 @@ import {
   type AppContent,
   type CheckInCategory,
   type ChatConfig,
+  type EmergencyGuide,
   type HomeAction,
   type MoodOption,
+  type NetworkHubFeature,
+  type ReminderPreset,
   type SymptomOption,
 } from '../services/api/content';
+import { OFFLINE_EMERGENCY } from '../assets/offlineEmergency';
+import {
+  OFFLINE_FACILITIES_DIRECTORY,
+  OFFLINE_NETWORK_HUB,
+  OFFLINE_NURSE_DIRECTORY,
+} from '../assets/offlineNetwork';
 import { storage } from '../services/storage';
 
 const CONTENT_CACHE_KEY = '@wunally/app_content';
@@ -23,7 +32,24 @@ const FALLBACK: AppContent = {
     input_placeholder: 'Type your message...',
   },
   chat_support_options: [],
+  network_hub: OFFLINE_NETWORK_HUB,
+  nurse_directory: OFFLINE_NURSE_DIRECTORY,
+  facilities_directory: OFFLINE_FACILITIES_DIRECTORY,
+  network_hub_features: [],
+  emergency_guide: OFFLINE_EMERGENCY as EmergencyGuide,
+  reminder_presets: [],
 };
+
+function normalizeContent(raw: Partial<AppContent>): AppContent {
+  return {
+    ...FALLBACK,
+    ...raw,
+    network_hub: { ...FALLBACK.network_hub, ...raw.network_hub },
+    nurse_directory: { ...FALLBACK.nurse_directory, ...raw.nurse_directory },
+    facilities_directory: { ...FALLBACK.facilities_directory, ...raw.facilities_directory },
+    emergency_guide: { ...FALLBACK.emergency_guide, ...raw.emergency_guide },
+  };
+}
 
 interface ContentState {
   loaded: boolean;
@@ -37,7 +63,7 @@ async function loadCache(): Promise<AppContent | null> {
   const raw = await storage.getItem(CONTENT_CACHE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as AppContent;
+    return normalizeContent(JSON.parse(raw) as Partial<AppContent>);
   } catch {
     return null;
   }
@@ -54,11 +80,11 @@ export const useContentStore = create<ContentState>((set, get) => ({
   hydrate: async () => {
     const cached = await loadCache();
     if (cached) {
-      set({ content: cached, loaded: true });
+      set({ content: normalizeContent(cached), loaded: true });
     }
 
     try {
-      const fresh = await fetchAppContent();
+      const fresh = normalizeContent(await fetchAppContent());
       await saveCache(fresh);
       set({ content: fresh, loaded: true });
     } catch (error) {
@@ -75,4 +101,13 @@ export const useContentStore = create<ContentState>((set, get) => ({
     get().content.check_in_categories.find((c) => c.id === id),
 }));
 
-export type { CheckInCategory, HomeAction, MoodOption, SymptomOption, ChatConfig };
+export type {
+  CheckInCategory,
+  HomeAction,
+  MoodOption,
+  SymptomOption,
+  ChatConfig,
+  NetworkHubFeature,
+  EmergencyGuide,
+  ReminderPreset,
+};

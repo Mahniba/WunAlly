@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, ScrollView, View, Platform, TouchableOpacity } from 'react-native';
-import { ScreenContainer, InputField, PrimaryButton, WeekProgress } from '../components';
+import { Text, StyleSheet, View, Platform, TouchableOpacity } from 'react-native';
+import { ScreenContainer, InputField, PrimaryButton, WeekProgress, KeyboardAwareScrollView } from '../components';
 import { useProfileStore, getDefaultProfile } from '../store';
 import { getErrorMessage } from '../services/api/errors';
 import { resetAfterAuth } from '../navigation/authNavigation';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getWeekInfo } from '../utils/weekData';
-
 export function ProfileCreateScreen({ navigation }: any) {
   const setProfile = useProfileStore((s) => s.setProfile);
   const persist = useProfileStore((s) => s.persist);
@@ -66,8 +64,6 @@ export function ProfileCreateScreen({ navigation }: any) {
     ? computeWeekFromDueDate(selectedDate)
     : null;
 
-  const weekInfo = weekNum ? getWeekInfo(weekNum) : null;
-
   const weeksLeft = Math.max(0, 40 - (weekNum ?? 40));
   const tentativeDate = (() => {
     const d = new Date();
@@ -75,20 +71,6 @@ export function ProfileCreateScreen({ navigation }: any) {
     return d;
   })();
   const tentativeLabel = `${tentativeDate.toLocaleDateString()} (in ${weeksLeft} week${weeksLeft === 1 ? '' : 's'})`;
-
-  function emojiForWeek(w: number) {
-    if (w <= 4) return '🌱';
-    if (w <= 9) return '🌸';
-    if (w <= 13) return '🍓';
-    if (w <= 17) return '🍋';
-    if (w <= 23) return '🍌';
-    if (w <= 27) return '🌽';
-    if (w <= 31) return '🍆';
-    if (w <= 35) return '🍈';
-    if (w <= 40) return '🍉';
-    if (w <= 42) return '🎃';
-    return '👶';
-  }
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },
@@ -104,11 +86,9 @@ export function ProfileCreateScreen({ navigation }: any) {
 
   return (
     <ScreenContainer>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
           Create Your Profile
@@ -116,11 +96,7 @@ export function ProfileCreateScreen({ navigation }: any) {
 
         {weekNum ? (
           <View style={{ marginBottom: 16 }}>
-            <WeekProgress
-              week={weekNum}
-              babySizeDescription={weekInfo!.babySize}
-              illustration={<Text style={{ fontSize: 32 }}>{emojiForWeek(weekNum)}</Text>}
-            />
+            <WeekProgress week={weekNum} />
           </View>
         ) : null}
         <InputField
@@ -209,7 +185,7 @@ export function ProfileCreateScreen({ navigation }: any) {
             </View>
           </View>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

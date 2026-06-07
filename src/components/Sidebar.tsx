@@ -1,24 +1,29 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppIcon } from './AppIcon';
+import { LanguageSelector } from './LanguageSelector';
 import { useSidebar } from '../context/SidebarContext';
 import { useAuthStore } from '../store';
 import { resetToLogin } from '../navigation/authNavigation';
-import { colors, typography } from '../theme';
+import { iconForSidebar } from '../utils/iconMap';
+import { colors, typography, spacing } from '../theme';
 
-const SIDEBAR_WIDTH = 260;
+const SIDEBAR_WIDTH = 280;
 
-type MenuItem = { label: string; screen: string };
+type MenuItem = { labelKey: string; screen: string };
 
 const MENU_ITEMS: MenuItem[] = [
-  { label: 'Profile', screen: 'Profile' },
-  { label: 'Emergency Contacts', screen: 'EmergencyContacts' },
-  { label: 'Privacy', screen: 'Privacy' },
-  { label: 'Log Out', screen: 'Logout' },
+  { labelKey: 'sidebar.profile', screen: 'Profile' },
+  { labelKey: 'sidebar.emergencyContacts', screen: 'EmergencyContacts' },
+  { labelKey: 'sidebar.privacy', screen: 'Privacy' },
+  { labelKey: 'sidebar.logout', screen: 'Logout' },
 ];
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { isOpen, closeSidebar } = useSidebar();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -42,31 +47,56 @@ export function Sidebar() {
   };
 
   return (
-    <Modal visible={isOpen} transparent animationType="slide">
+    <Modal visible={isOpen} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={closeSidebar}>
         <Pressable
-          style={[styles.panel, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}
+          style={[
+            styles.panel,
+            { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom + spacing.md },
+          ]}
           onPress={(e) => e.stopPropagation()}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Menu</Text>
-            <TouchableOpacity onPress={closeSidebar} style={styles.closeBtn} accessibilityLabel="Close menu">
-              <Text style={styles.closeText}>✕</Text>
+            <View>
+              <Text style={styles.brand}>WunAlly</Text>
+              <Text style={styles.brandSub}>{t('sidebar.brandSub')}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={closeSidebar}
+              style={styles.closeBtn}
+              accessibilityLabel={t('sidebar.closeMenu')}
+            >
+              <AppIcon name="x" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
+
           <View style={styles.menu}>
-            {MENU_ITEMS.map((item) => (
-              <TouchableOpacity
-                key={item.screen}
-                style={styles.menuItem}
-                onPress={() => handleItem(item.screen)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.menuLabel}>{item.label}</Text>
-                <Text style={styles.menuArrow}>›</Text>
-              </TouchableOpacity>
-            ))}
+            {MENU_ITEMS.map((item) => {
+              const isLogout = item.screen === 'Logout';
+              return (
+                <TouchableOpacity
+                  key={item.screen}
+                  style={[styles.menuItem, isLogout && styles.menuItemLogout]}
+                  onPress={() => handleItem(item.screen)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.menuIcon, isLogout && styles.menuIconLogout]}>
+                    <AppIcon
+                      name={iconForSidebar(item.screen)}
+                      size={18}
+                      color={isLogout ? colors.error : colors.coralDark}
+                    />
+                  </View>
+                  <Text style={[styles.menuLabel, isLogout && styles.menuLabelLogout]}>
+                    {t(item.labelKey)}
+                  </Text>
+                  <AppIcon name="chevron-right" size={16} color={colors.textMuted} />
+                </TouchableOpacity>
+              );
+            })}
           </View>
+
+          <LanguageSelector variant="compact" />
         </Pressable>
       </Pressable>
     </Modal>
@@ -77,46 +107,75 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(26, 21, 32, 0.35)',
   },
   panel: {
     width: SIDEBAR_WIDTH,
     backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowColor: '#1A1520',
+    shadowOffset: { width: 4, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 12,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.softPink,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
   },
-  title: {
+  brand: {
     fontSize: typography.sizes.xl,
     fontWeight: typography.weights.bold,
     color: colors.textPrimary,
+    letterSpacing: -0.4,
   },
-  closeBtn: { padding: 8 },
-  closeText: { fontSize: 20, color: colors.textSecondary },
-  menu: { padding: 16 },
+  brandSub: {
+    fontSize: typography.sizes.sm,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  closeBtn: {
+    padding: spacing.xs,
+    marginTop: -spacing.xs,
+  },
+  menu: { padding: spacing.sm, paddingTop: spacing.md },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.sm,
     borderRadius: 12,
+    marginBottom: spacing.xxs,
+  },
+  menuItemLogout: {
+    marginTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
+    paddingTop: spacing.md,
+  },
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.backgroundSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  menuIconLogout: {
+    backgroundColor: '#FDF0F0',
   },
   menuLabel: {
+    flex: 1,
     fontSize: typography.sizes.base,
     fontWeight: typography.weights.medium,
     color: colors.textPrimary,
   },
-  menuArrow: { fontSize: 18, color: colors.textMuted },
+  menuLabelLogout: {
+    color: colors.error,
+  },
 });

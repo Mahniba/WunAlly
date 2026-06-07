@@ -1,8 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppIcon } from './AppIcon';
 import { scaleByHeight } from '../utils/layout';
-import { colors } from '../theme';
+import { colors, shadows } from '../theme';
 
 interface FloatingVoiceButtonProps {
   onPress: () => void;
@@ -10,17 +11,20 @@ interface FloatingVoiceButtonProps {
 
 export function FloatingVoiceButton({ onPress }: FloatingVoiceButtonProps) {
   const insets = useSafeAreaInsets();
-  const bottomOffset = Math.max(insets.bottom + scaleByHeight(24), 24);
+  // Keep the mic comfortably above the home indicator / tab bar.
+  // Smaller offset = lower on screen (closer to bottom).
+  const bottomOffset = Math.max(insets.bottom + scaleByHeight(10), 14);
+
   return (
     <TouchableOpacity
-      style={[styles.fab, { bottom: bottomOffset }]}
+      style={[styles.fab, shadows.md, { bottom: bottomOffset }]}
       onPress={onPress}
       activeOpacity={0.9}
       accessible
       accessibilityRole="button"
       accessibilityLabel="Chat assistant"
     >
-      <Text style={styles.icon}>🤖</Text>
+      <AppIcon name="mic" size={22} color={colors.lavenderDark} />
     </TouchableOpacity>
   );
 }
@@ -29,17 +33,13 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     left: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.lavender,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.lavenderDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
-  icon: { fontSize: 26 },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AppIcon } from './AppIcon';
 import { colors, typography, spacing } from '../theme';
 import { MIN_TOUCH_TARGET } from '../constants';
 import type { RootStackParamList } from '../navigation/types';
@@ -13,29 +14,31 @@ interface ScreenHeaderProps {
 
 export function ScreenHeader({ title, showBack = true }: ScreenHeaderProps) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleBack = () => {
+    if (navigation.canGoBack?.()) {
+      navigation.goBack();
+    } else {
+      try {
+        navigation.navigate('Main');
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   return (
     <View style={styles.header}>
       {showBack ? (
         <TouchableOpacity
           style={styles.backBtn}
-          onPress={() => {
-            if (navigation.canGoBack && navigation.canGoBack()) {
-              navigation.goBack();
-            } else {
-              // fall back to main screen if no back available
-              try {
-                navigation.navigate('Main');
-              } catch {
-                // ignore if navigation doesn't support it
-              }
-            }
-          }}
+          onPress={handleBack}
           accessible
           accessibilityLabel="Go back"
           accessibilityRole="button"
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Text style={styles.backArrow}>←</Text>
+          <AppIcon name="chevron-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       ) : (
         <View style={styles.backBtn} />
@@ -56,6 +59,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.sm,
     minHeight: MIN_TOUCH_TARGET + spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
+    backgroundColor: colors.surface,
   },
   backBtn: {
     minWidth: MIN_TOUCH_TARGET,
@@ -63,12 +69,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backArrow: { fontSize: 24, color: colors.textPrimary },
   title: {
     flex: 1,
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.semibold,
     color: colors.textPrimary,
     textAlign: 'center',
+    letterSpacing: -0.2,
   },
 });

@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, typography } from '../theme';
+import { AppIcon, type FeatherIconName } from '../components/AppIcon';
+import { colors, typography, shadows } from '../theme';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { RemindersScreen } from '../screens/RemindersScreen';
 import { CheckInHomeScreen } from '../screens/CheckInHomeScreen';
@@ -20,13 +22,13 @@ function TabIconLabel({
 }: {
   label: string;
   focused: boolean;
-  icon: string;
+  icon: FeatherIconName;
 }) {
+  const tint = focused ? colors.coralDark : colors.textMuted;
+
   return (
     <View style={styles.tabContent}>
-      <View style={[styles.iconCircle, focused && styles.iconCircleFocused]}>
-        <Text style={[styles.iconText, focused && styles.iconTextFocused]}>{icon}</Text>
-      </View>
+      <AppIcon name={icon} size={22} color={tint} />
       <Text style={[styles.label, focused && styles.labelFocused]} numberOfLines={1}>
         {label}
       </Text>
@@ -35,20 +37,24 @@ function TabIconLabel({
 }
 
 export function MainTabs() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 56 + insets.bottom;
 
   return (
     <Tab.Navigator
+      safeAreaInsets={{ bottom: 0 }}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
+        sceneContainerStyle: styles.scene,
         tabBarStyle: [
           styles.tabBar,
+          shadows.tabBar,
           {
             height: tabBarHeight,
             paddingBottom: insets.bottom,
-            paddingTop: 10,
+            paddingTop: 6,
           },
         ],
         tabBarItemStyle: styles.tabItemStyle,
@@ -61,7 +67,7 @@ export function MainTabs() {
         component={DashboardScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Home" focused={focused} icon="🏠" />
+            <TabIconLabel label={t('tabs.home')} focused={focused} icon="home" />
           ),
         }}
       />
@@ -70,7 +76,7 @@ export function MainTabs() {
         component={RemindersScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Alerts" focused={focused} icon="🔔" />
+            <TabIconLabel label={t('tabs.alerts')} focused={focused} icon="bell" />
           ),
         }}
       />
@@ -86,7 +92,7 @@ export function MainTabs() {
         component={HealthSupportScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Network" focused={focused} icon="🌐" />
+            <TabIconLabel label={t('tabs.network')} focused={focused} icon="users" />
           ),
         }}
       />
@@ -95,7 +101,7 @@ export function MainTabs() {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIconLabel label="Profile" focused={focused} icon="👤" />
+            <TabIconLabel label={t('tabs.profile')} focused={focused} icon="user" />
           ),
         }}
       />
@@ -104,41 +110,21 @@ export function MainTabs() {
 }
 
 const styles = StyleSheet.create({
+  scene: {
+    backgroundColor: colors.background,
+  },
   tabBar: {
     backgroundColor: colors.surface,
-    borderTopWidth: 0,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
   },
   tabItemStyle: {
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   tabContent: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  iconCircle: {
-    width: 44,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 2,
-  },
-  iconCircleFocused: {
-    backgroundColor: colors.softPink,
-  },
-  iconText: {
-    fontSize: 18,
-    color: colors.textMuted,
-  },
-  iconTextFocused: {
-    color: colors.coralDark,
+    gap: 3,
   },
   label: {
     fontSize: 11,

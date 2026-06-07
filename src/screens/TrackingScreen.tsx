@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { ScreenContainer, ScreenHeader } from '../components';
+import { ScreenContainer, ScreenHeader, WeekProgress } from '../components';
 import { getWeekInfo, getTrimesterLabel } from '../utils/weekData';
 import { getTrimesterExpectation } from '../utils/trimesterData';
 import { useProfileStore } from '../store/useProfileStore';
@@ -48,21 +48,6 @@ export function TrackingScreen() {
       fontSize: font(typography.sizes.base),
       color: colors.textSecondary,
       marginBottom: s(20),
-    },
-    babyCard: {
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: s(20),
-      marginBottom: s(16),
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    babyIllustration: { width: 80, height: 80, justifyContent: 'center', alignItems: 'center', marginRight: s(16) },
-    babyEmoji: { fontSize: 48 },
-    babyText: {
-      flex: 1,
-      fontSize: font(typography.sizes.base),
-      color: colors.textSecondary,
     },
     expandableCard: {
       backgroundColor: colors.surface,
@@ -111,13 +96,8 @@ export function TrackingScreen() {
         <Text style={styles.trimester} allowFontScaling maxFontSizeMultiplier={1.3}>
           {getTrimesterLabel(info.trimester)}
         </Text>
-        <View style={styles.babyCard}>
-          <View style={styles.babyIllustration}>
-            <Text style={styles.babyEmoji}>🌽</Text>
-          </View>
-          <Text style={styles.babyText} allowFontScaling maxFontSizeMultiplier={1.3}>
-            Baby is about the size of {info.babySize}.
-          </Text>
+        <View style={{ marginBottom: s(16) }}>
+          <WeekProgress week={info.week} />
         </View>
         <TouchableOpacity
           style={styles.expandableCard}

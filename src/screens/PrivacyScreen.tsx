@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import {
-  ScrollView,
   Text,
   StyleSheet,
   Alert,
   Share,
-  Modal,
   View,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { ScreenContainer, ScreenHeader, SecondaryButton } from '../components';
+import { ScreenContainer, ScreenHeader, SecondaryButton, KeyboardAwareScrollView, KeyboardModal } from '../components';
 import { exportMyData, deleteMyAccount } from '../services/api/research';
 import { getErrorMessage } from '../services/api/errors';
 import { useAuthStore } from '../store';
@@ -109,7 +107,7 @@ export function PrivacyScreen() {
   return (
     <ScreenContainer>
       <ScreenHeader title="Privacy & Data" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView withHeader style={styles.scroll} contentContainerStyle={styles.content}>
         <Text style={styles.body} allowFontScaling maxFontSizeMultiplier={1.3}>
           Your health data syncs to the research server when you are logged in. This app does not provide
           medical diagnosis—always consult your care provider.
@@ -123,6 +121,18 @@ export function PrivacyScreen() {
         </Text>
 
         <Text style={styles.sectionTitle}>Your data</Text>
+        <Text style={styles.sectionTitle}>Research participation</Text>
+        <SecondaryButton
+          title="Review study consent"
+          onPress={() => navigation.navigate('StudyConsent' as never)}
+          style={styles.btn}
+        />
+        <SecondaryButton
+          title="Submit usability feedback (SUS)"
+          onPress={() => navigation.navigate('SUSQuestionnaire' as never)}
+          style={styles.btn}
+        />
+
         <SecondaryButton
           title={busy === 'export' ? 'Exporting…' : 'Export my data (JSON)'}
           onPress={handleExport}
@@ -135,9 +145,9 @@ export function PrivacyScreen() {
           style={styles.btn}
           disabled={!!busy}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
-      <Modal visible={showDeleteModal} transparent animationType="fade">
+      <KeyboardModal visible={showDeleteModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>Delete account</Text>
@@ -165,7 +175,7 @@ export function PrivacyScreen() {
             </View>
           </View>
         </View>
-      </Modal>
+      </KeyboardModal>
     </ScreenContainer>
   );
 }

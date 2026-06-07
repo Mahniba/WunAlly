@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { ScreenContainer, PrimaryButton, SecondaryButton } from '../components';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  ScreenContainer,
+  PrimaryButton,
+  SecondaryButton,
+  InputField,
+  AppIcon,
+  KeyboardAwareScrollView,
+} from '../components';
 import { useAuthStore, useProfileStore } from '../store';
 import { getErrorMessage } from '../services/api/errors';
 import { resetAfterAuth } from '../navigation/authNavigation';
 import { useResponsive } from '../hooks/useResponsive';
-import { colors, typography } from '../theme';
+import { colors, typography, spacing } from '../theme';
 
 export function LoginScreen({ navigation }: any) {
   const { s, sVertical, font } = useResponsive();
@@ -28,72 +35,58 @@ export function LoginScreen({ navigation }: any) {
 
   const styles = StyleSheet.create({
     content: {
-      flex: 1,
+      flexGrow: 1,
       justifyContent: 'center',
       paddingHorizontal: s(24),
+      paddingVertical: sVertical(24),
+    },
+    brandMark: {
+      alignSelf: 'center',
+      width: 56,
+      height: 56,
+      borderRadius: 16,
+      backgroundColor: colors.backgroundSecondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: sVertical(24),
     },
     title: {
       fontSize: font(typography.sizes.title),
       fontWeight: typography.weights.bold,
       color: colors.textPrimary,
-      marginBottom: sVertical(12),
+      marginBottom: sVertical(8),
       textAlign: 'center',
+      letterSpacing: -0.5,
     },
     subtitle: {
       fontSize: font(typography.sizes.base),
       color: colors.textSecondary,
       textAlign: 'center',
       marginBottom: sVertical(32),
-    },
-    inputGroup: {
-      marginBottom: sVertical(16),
-    },
-    label: {
-      fontSize: font(typography.sizes.sm),
-      fontWeight: typography.weights.semibold,
-      color: colors.textPrimary,
-      marginBottom: s(8),
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: s(8),
-      paddingHorizontal: s(16),
-      paddingVertical: sVertical(12),
-      fontSize: font(typography.sizes.base),
-      color: colors.textPrimary,
-      backgroundColor: colors.surface,
-    },
-    passwordContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: s(8),
-      paddingHorizontal: s(16),
-      backgroundColor: colors.surface,
-    },
-    passwordInput: {
-      flex: 1,
-      paddingVertical: sVertical(12),
-      fontSize: font(typography.sizes.base),
-      color: colors.textPrimary,
-    },
-    togglePassword: {
-      padding: s(8),
-    },
-    toggleText: {
-      fontSize: font(typography.sizes.base),
-      color: colors.lavenderDark,
+      lineHeight: 22,
     },
     forgotPassword: {
       alignSelf: 'flex-end',
       marginBottom: sVertical(24),
+      marginTop: -spacing.xs,
     },
     forgotText: {
       fontSize: font(typography.sizes.sm),
-      color: colors.lavenderDark,
-      fontWeight: typography.weights.semibold,
+      color: colors.coralDark,
+      fontWeight: typography.weights.medium,
+    },
+    errorBox: {
+      backgroundColor: '#FDF0F0',
+      borderRadius: 12,
+      padding: s(12),
+      marginBottom: sVertical(16),
+      borderWidth: 1,
+      borderColor: '#F5D5D5',
+    },
+    errorText: {
+      color: colors.error,
+      fontSize: font(typography.sizes.sm),
+      lineHeight: 20,
     },
     buttonContainer: {
       marginBottom: sVertical(16),
@@ -102,6 +95,7 @@ export function LoginScreen({ navigation }: any) {
       flexDirection: 'row',
       justifyContent: 'center',
       gap: s(4),
+      marginTop: sVertical(8),
     },
     signupText: {
       fontSize: font(typography.sizes.sm),
@@ -109,72 +103,84 @@ export function LoginScreen({ navigation }: any) {
     },
     signupLink: {
       fontSize: font(typography.sizes.sm),
-      color: colors.lavenderDark,
+      color: colors.coralDark,
       fontWeight: typography.weights.semibold,
     },
   });
 
   return (
     <ScreenContainer>
-      <View style={styles.content}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
+        <View style={styles.brandMark}>
+          <AppIcon name="heart" size={28} color={colors.coralDark} />
+        </View>
+
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
-          Welcome Back
+          Welcome back
         </Text>
         <Text style={styles.subtitle} allowFontScaling maxFontSizeMultiplier={1.3}>
-          Sign in to your WunAlly account
+          Sign in to continue your pregnancy journey
         </Text>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@example.com"
-            placeholderTextColor={colors.textSecondary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            editable
-          />
-        </View>
+        <InputField
+          label="Email"
+          placeholder="you@example.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="••••••••"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity style={styles.togglePassword} onPress={() => setShowPassword(!showPassword)}>
-              <Text style={styles.toggleText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+        <InputField
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          rightIcon={
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <AppIcon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={colors.textMuted}
+              />
             </TouchableOpacity>
-          </View>
-        </View>
+          }
+        />
 
-        <TouchableOpacity style={styles.forgotPassword} onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
+        <TouchableOpacity
+          style={styles.forgotPassword}
+          onPress={() => navigation.navigate('ForgotPassword')}
+        >
+          <Text style={styles.forgotText}>Forgot password?</Text>
         </TouchableOpacity>
 
         {error ? (
-          <View style={{ backgroundColor: colors.softPink, borderRadius: s(8), padding: s(12), marginBottom: sVertical(16) }}>
-            <Text style={{ color: colors.error, fontSize: font(typography.sizes.sm) }}>{error}</Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
 
         <View style={styles.buttonContainer}>
-          <PrimaryButton title="Sign In" onPress={handleLogin} disabled={loading || !email || !password} />
+          <PrimaryButton
+            title="Sign in"
+            onPress={handleLogin}
+            disabled={loading || !email || !password}
+            loading={loading}
+          />
         </View>
 
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signupLink}>Sign Up</Text>
+            <Text style={styles.signupLink}>Sign up</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

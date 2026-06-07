@@ -1,3 +1,4 @@
+export { LanguageScreen } from './LanguageScreen';
 export { OnboardingScreen } from './OnboardingScreen';
 export { ProfileCreateScreen } from './ProfileCreateScreen';
 export { DashboardScreen } from './DashboardScreen';

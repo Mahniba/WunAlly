@@ -39,10 +39,11 @@ export function InputField({
 const styles = StyleSheet.create({
   container: { marginBottom: spacing.md },
   label: {
-    fontSize: typography.sizes.base,
+    fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
-    color: colors.textPrimary,
-    marginBottom: spacing.xxs,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    letterSpacing: 0.1,
   },
   inputRow: { position: 'relative' },
   input: {
@@ -51,8 +52,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: colors.softPink,
-    paddingVertical: spacing.sm,
+    borderColor: colors.border,
+    paddingVertical: spacing.sm + 2,
     paddingHorizontal: spacing.md,
     minHeight: 48,
   },

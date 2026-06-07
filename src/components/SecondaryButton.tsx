@@ -38,9 +38,10 @@ export function SecondaryButton({
 const styles = StyleSheet.create({
   button: {
     minHeight: MIN_TOUCH_TARGET,
-    borderRadius: borderRadius.lg,
-    borderWidth: 2,
-    borderColor: colors.lavender,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.sm,
@@ -50,6 +51,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: typography.sizes.base,
     fontWeight: typography.weights.semibold,
-    color: colors.lavenderDark,
+    color: colors.textPrimary,
   },
 });

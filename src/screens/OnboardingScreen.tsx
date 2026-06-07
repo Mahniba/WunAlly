@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { ScreenContainer, PrimaryButton } from '../components';
 import { useOnboardingStore } from '../store';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 
 export function OnboardingScreen({ navigation }: any) {
+  const { t } = useTranslation();
   const complete = useOnboardingStore((s) => s.complete);
   const { s, sVertical, font } = useResponsive();
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,6 @@ export function OnboardingScreen({ navigation }: any) {
     try {
       setLoading(true);
       await complete();
-      // Navigate to SignUp now that onboarding is complete
       navigation.navigate('SignUp');
     } catch (e) {
       console.error('Onboarding complete failed', e);
@@ -54,11 +55,6 @@ export function OnboardingScreen({ navigation }: any) {
   return (
     <ScreenContainer>
       <View style={styles.content}>
-        {/*
-          Optional: swap the placeholder below with a real asset
-          (e.g. assets/images/onboarding.png) showing a pregnant
-          woman holding her belly.
-        */}
         <Image
           source={require('../../assets/images/onboarding.png')}
           style={styles.heroImage}
@@ -66,13 +62,13 @@ export function OnboardingScreen({ navigation }: any) {
         />
 
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
-          WunAlly
+          {t('onboarding.title')}
         </Text>
         <Text style={styles.tagline} allowFontScaling maxFontSizeMultiplier={1.3}>
-          Your journey, supported every step of the way.
+          {t('onboarding.tagline')}
         </Text>
         <PrimaryButton
-          title="Start My Journey"
+          title={t('onboarding.start')}
           onPress={handleStart}
           loading={loading}
           style={styles.button}

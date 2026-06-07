@@ -55,6 +55,15 @@ export async function setStoredProfile(json: string): Promise<void> {
   await storage.setItem(STORAGE_KEYS.USER_PROFILE, json);
 }
 
+export async function getLanguageChosen(): Promise<boolean> {
+  const v = await storage.getItem(STORAGE_KEYS.LANGUAGE_CHOSEN);
+  return v === 'true';
+}
+
+export async function setLanguageChosen(): Promise<void> {
+  await storage.setItem(STORAGE_KEYS.LANGUAGE_CHOSEN, 'true');
+}
+
 export async function getOnboardingDone(): Promise<boolean> {
   const v = await storage.getItem(STORAGE_KEYS.ONBOARDING_DONE);
   return v === 'true';

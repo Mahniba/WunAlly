@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
-import { ScreenContainer, Card, PrimaryButton } from '../components';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { ScreenContainer, Card, PrimaryButton, KeyboardAwareScrollView } from '../components';
 import { useContactsStore } from '../store/useContactsStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
@@ -46,7 +46,7 @@ export function EmergencyContactsScreen({ navigation }: any) {
 
   return (
     <ScreenContainer>
-      <View style={styles.content}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Emergency Contacts</Text>
         <Card>
           <View style={styles.row}>
@@ -60,20 +60,16 @@ export function EmergencyContactsScreen({ navigation }: any) {
         {contacts.length === 0 ? (
           <Text style={styles.emptyText}>No emergency contacts yet.</Text>
         ) : (
-          <FlatList
-            data={contacts}
-            keyExtractor={(i) => i.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.listItem} onPress={() => handleRemove(item.id)}>
-                <Text style={styles.listText}>{item.name} — {item.phone}</Text>
-                <Text style={{ color: colors.error }}>Remove</Text>
-              </TouchableOpacity>
-            )}
-          />
+          contacts.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handleRemove(item.id)}>
+              <Text style={styles.listText}>{item.name} — {item.phone}</Text>
+              <Text style={{ color: colors.error }}>Remove</Text>
+            </TouchableOpacity>
+          ))
         )}
 
         <PrimaryButton title="Done" onPress={() => navigation.navigate('Main')} style={{ marginTop: 20 }} />
-      </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

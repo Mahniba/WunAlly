@@ -10,7 +10,8 @@ interface FloatingSOSButtonProps {
 
 export function FloatingSOSButton({ onPress }: FloatingSOSButtonProps) {
   const insets = useSafeAreaInsets();
-  const bottomOffset = Math.max(insets.bottom + scaleByHeight(24), 24);
+  // Smaller offset = lower on screen (closer to bottom).
+  const bottomOffset = Math.max(insets.bottom + scaleByHeight(10), 14);
   return (
     <TouchableOpacity
       style={[styles.fab, { bottom: bottomOffset }]}

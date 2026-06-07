@@ -1,37 +1,94 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Linking, Share } from 'react-native';
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Share,
+  Pressable,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Location from 'expo-location';
+import { useTranslation } from 'react-i18next';
 import { ScreenContainer, ScreenHeader } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import { useContactsStore } from '../store/useContactsStore';
-import { logSosEvent } from '../services/api/sos';
+import { useContentStore } from '../store/useContentStore';
+import { triggerSosAlert, callFirstContact, mapsLink, getCurrentCoords } from '../services/sosAlerts';
+import { OFFLINE_EMERGENCY } from '../assets/offlineEmergency';
+import { hasAccessToken } from '../services/api/session';
 
 export function SOSScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
   const [sent, setSent] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { s, font, horizontalPadding } = useResponsive();
   const contacts = useContactsStore((s2) => s2.contacts);
   const hydrateContacts = useContactsStore((s2) => s2.hydrate);
+  const emergencyGuide = useContentStore((st) => st.content.emergency_guide);
+  const hydrateContent = useContentStore((st) => st.hydrate);
 
   React.useEffect(() => {
     hydrateContacts();
-  }, [hydrateContacts]);
+    hydrateContent();
+  }, [hydrateContacts, hydrateContent]);
 
-  const handleSend = () => {
-    void logSosEvent(false);
+  const guide = emergencyGuide?.steps?.length ? emergencyGuide : OFFLINE_EMERGENCY;
+
+  const runSos = async () => {
+    if (contacts.length === 0) {
+      Alert.alert(t('sos.noContact'), '', [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: 'Add Contact',
+          onPress: () => navigation.navigate('EmergencyContacts'),
+        },
+      ]);
+      return;
+    }
+
+    const offline = !(await hasAccessToken());
+
+    const result = await triggerSosAlert(
+      contacts.map((c) => ({ name: c.name, phone: c.phone })),
+      guide,
+      { fetchLocation: true, offline },
+    );
+
     setSent(true);
+    if (result.notified > 0) {
+      setFeedback(t('sos.alertSent'));
+    } else {
+      setFeedback(t('sos.alertPartial'));
+    }
+
     setTimeout(() => {
       try {
-        if (navigation.canGoBack && navigation.canGoBack()) navigation.goBack();
+        if (navigation.canGoBack()) navigation.goBack();
         else navigation.navigate('Main');
       } catch {
-        // ignore
+        /* ignore */
       }
+    }, 2500);
+  };
+
+  const onPressIn = () => {
+    holdTimer.current = setTimeout(() => {
+      void runSos();
     }, 2000);
+  };
+
+  const onPressOut = () => {
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
   };
 
   const size = Math.min(s(240), 280);
@@ -46,8 +103,9 @@ export function SOSScreen() {
       fontSize: font(typography.sizes.xxl),
       fontWeight: typography.weights.bold,
       color: colors.textPrimary,
-      marginBottom: s(48),
+      marginBottom: s(12),
     },
+    hint: { color: colors.textSecondary, marginBottom: s(32), textAlign: 'center' },
     sosButton: {
       width: size,
       height: size,
@@ -58,10 +116,6 @@ export function SOSScreen() {
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: s(32),
-      shadowColor: colors.sos,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 12,
       elevation: 8,
     },
     sosButtonText: {
@@ -94,100 +148,76 @@ export function SOSScreen() {
       fontWeight: typography.weights.semibold,
       color: colors.success,
       textAlign: 'center',
+      paddingHorizontal: s(16),
     },
   });
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="SOS Emergency" />
+      <ScreenHeader title={t('sos.title')} />
       <View style={styles.content}>
-        <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
-          SOS Emergency
+        <Text style={styles.title} allowFontScaling>
+          {t('sos.title')}
         </Text>
         {!sent ? (
           <>
-            <TouchableOpacity
+            <Text style={styles.hint}>{t('sos.holdHint')}</Text>
+            <Pressable
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}
               style={styles.sosButton}
-              onPress={handleSend}
-              activeOpacity={0.9}
-              accessible
               accessibilityRole="button"
-              accessibilityLabel="Send SOS alert"
+              accessibilityLabel={t('sos.sendAlert')}
             >
-              <Text style={styles.sosButtonText}>SEND SOS{'\n'}ALERT</Text>
-            </TouchableOpacity>
+              <Text style={styles.sosButtonText}>{t('sos.sendAlert')}</Text>
+            </Pressable>
             <View style={styles.options}>
               <TouchableOpacity
                 style={styles.optionCard}
-                activeOpacity={0.8}
                 onPress={async () => {
-                  try {
-                    const perm = await Location.requestForegroundPermissionsAsync();
-                    if (perm.status !== 'granted') {
-                      Alert.alert('Location permission needed', 'Please enable location permission to share your location.');
-                      return;
-                    }
-                    const pos = await Location.getCurrentPositionAsync({
-                      accuracy: Location.Accuracy.Balanced,
-                    });
-                    const { latitude, longitude } = pos.coords;
-                    const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
-                    await Share.share({
-                      message: `My current location: ${mapsUrl}`,
-                    });
-                    void logSosEvent(true);
-                  } catch (e) {
-                    Alert.alert('Could not get location', 'Please try again.');
+                  const coords = await getCurrentCoords();
+                  if (!coords) {
+                    Alert.alert('Location', 'Could not get location.');
+                    return;
                   }
+                  await Share.share({ message: mapsLink(coords.latitude, coords.longitude) });
                 }}
-                accessibilityRole="button"
-                accessibilityLabel="Share my location"
               >
                 <View style={styles.optionLeft}>
                   <Text style={styles.optionIcon}>📍</Text>
-                  <Text style={styles.optionLabel}>Share Location</Text>
+                  <Text style={styles.optionLabel}>{t('sos.shareLocation')}</Text>
                 </View>
                 <Text style={styles.optionArrow}>›</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.optionCard}
-                activeOpacity={0.8}
                 onPress={async () => {
-                  const first = contacts[0];
-                  if (!first?.phone) {
-                    Alert.alert(
-                      'No emergency contact',
-                      'Add an emergency contact first.',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Add Contact', onPress: () => navigation.navigate('EmergencyContacts') },
-                      ],
-                    );
-                    return;
-                  }
-                  const tel = `tel:${first.phone}`;
-                  const can = await Linking.canOpenURL(tel);
-                  if (!can) {
-                    Alert.alert('Cannot place call', 'Calling is not available on this device.');
-                    return;
-                  }
-                  Linking.openURL(tel);
+                  const ok = await callFirstContact(
+                    contacts.map((c) => ({ name: c.name, phone: c.phone })),
+                  );
+                  if (!ok) Alert.alert(t('sos.noContact'));
                 }}
-                accessibilityRole="button"
-                accessibilityLabel="Call for help"
               >
                 <View style={styles.optionLeft}>
                   <Text style={styles.optionIcon}>📞</Text>
-                  <Text style={styles.optionLabel}>Call for Help</Text>
+                  <Text style={styles.optionLabel}>{t('sos.callHelp')}</Text>
+                </View>
+                <Text style={styles.optionArrow}>›</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionCard}
+                onPress={() => navigation.navigate('EmergencyGuide')}
+              >
+                <View style={styles.optionLeft}>
+                  <Text style={styles.optionIcon}>📖</Text>
+                  <Text style={styles.optionLabel}>{t('sos.emergencyGuide')}</Text>
                 </View>
                 <Text style={styles.optionArrow}>›</Text>
               </TouchableOpacity>
             </View>
           </>
         ) : (
-          <Text style={styles.feedback} allowFontScaling maxFontSizeMultiplier={1.3}>
-            Alert sent. Help is on the way. Stay safe.
-          </Text>
+          <Text style={styles.feedback}>{feedback}</Text>
         )}
       </View>
     </ScreenContainer>

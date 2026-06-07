@@ -18,14 +18,15 @@ export const colors = {
   lavender: '#E8E0F0',
   lavenderDark: '#6B5FA6',
 
-  // Backgrounds (brand prefers white)
-  background: '#FFFFFF',
-  backgroundSecondary: '#FFF8F6',
+  // Backgrounds — warm off-white canvas, white surfaces
+  background: '#FAF8F7',
+  backgroundSecondary: '#F3F0EE',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
 
   // Borders / dividers
-  border: '#E9E3E5',
+  border: '#E8E3E5',
+  borderLight: '#F0ECEE',
 
   // Text — high contrast for accessibility
   textPrimary: '#2D2A2B',

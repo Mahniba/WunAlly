@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { PrimaryButton, SecondaryButton } from './index';
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { PrimaryButton, SecondaryButton, KeyboardModal } from './index';
 import { getSymptomReminderTime, setSymptomReminderTime } from '../services/storage';
 import { scheduleDailyReminder } from '../services/notifications';
 import { colors } from '../theme';
@@ -35,7 +35,7 @@ export function SymptomsSettings({ visible, onClose }: { visible: boolean; onClo
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <KeyboardModal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.box}>
           <Text style={styles.title}>Symptom Reminder Time</Text>
@@ -47,7 +47,7 @@ export function SymptomsSettings({ visible, onClose }: { visible: boolean; onClo
           </View>
         </View>
       </View>
-    </Modal>
+    </KeyboardModal>
   );
 }
 

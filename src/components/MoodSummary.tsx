@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useMoodStore, MoodType } from '../store/useMoodStore';
 import { useProfileStore } from '../store/useProfileStore';
 import { useContentStore } from '../store/useContentStore';
 import { colorFromKey } from '../utils/contentColors';
+import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import PregnantIllustration from './art/PregnantIllustration';
 
@@ -23,6 +24,7 @@ export function MoodSummary() {
   const addEntry = useMoodStore((s) => s.addEntry);
   const moodOptions = useContentStore((s) => s.content.moods);
   const hydrateContent = useContentStore((s) => s.hydrate);
+  const { width, sVertical, horizontalPadding } = useResponsive();
 
   const MOODS = useMemo(
     () =>
@@ -67,7 +69,7 @@ export function MoodSummary() {
     }
   }
 
-  const screenWidth = Dimensions.get('window').width - 32;
+  const screenWidth = width - horizontalPadding * 2;
 
   const saveMood = async () => {
     if (!selected) return;
@@ -149,7 +151,7 @@ export function MoodSummary() {
   }, [entries, range]);
 
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { marginTop: sVertical(8), marginBottom: sVertical(24) }]}>
       <Text style={styles.title}>Track Your Mood</Text>
 
       <Text style={styles.prompt}>How are you feeling today?</Text>
@@ -273,24 +275,43 @@ export function MoodSummary() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginTop: 18, marginBottom: 36 },
-  title: { fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.textPrimary, marginBottom: 8 },
-  prompt: { fontSize: 16, color: colors.textSecondary, marginBottom: 8 },
+  wrap: {},
+  title: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.semibold,
+    color: colors.textPrimary,
+    marginBottom: 4,
+    letterSpacing: -0.2,
+  },
+  prompt: { fontSize: typography.sizes.sm, color: colors.textSecondary, marginBottom: 12 },
   buttonRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 12 },
-  moodBtnLarge: { paddingVertical: 8, borderRadius: 10, flexBasis: '24%', alignItems: 'center', marginBottom: 8 },
+  moodBtnLarge: {
+    paddingVertical: 10,
+    borderRadius: 12,
+    flexBasis: '24%',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   moodEmojiLarge: { fontSize: 24 },
   moodLabel: { color: '#fff', marginTop: 4, fontSize: 11 },
   moodLabelActive: { color: '#333' },
   noteInput: {
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 10,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 12,
     marginTop: 8,
     backgroundColor: colors.surface,
     color: colors.textPrimary,
+    fontSize: typography.sizes.base,
   },
-  saveBtn: { marginTop: 10, backgroundColor: colors.coral, paddingVertical: 12, borderRadius: 24, alignItems: 'center' },
+  saveBtn: {
+    marginTop: 12,
+    backgroundColor: colors.coralDark,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
   saveBtnText: { color: '#fff', fontWeight: '700' },
   trendsWrap: { marginTop: 16, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
   trendsTitle: { fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 },

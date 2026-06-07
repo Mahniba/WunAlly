@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef } from './src/navigation/NavigationService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -13,8 +14,7 @@ import { logAlertEvent } from './src/services/api/alerts';
 import { hasAccessToken } from './src/services/api/session';
 import { DoctorAlert } from './src/components/DoctorAlert';
 import { getSymptomReminderTime } from './src/services/storage';
-import { Alert } from 'react-native';
-import { TouchableOpacity, Text } from 'react-native';
+import { initI18n } from './src/i18n';
 
 export default function App() {
   const setDone = useOnboardingStore((s) => s.setDone);
@@ -26,8 +26,8 @@ export default function App() {
   // NOTE: Avoid dev-only UI overlays in production builds.
 
   React.useEffect(() => {
-    // hydrate symptoms store on app start and schedule daily reminder
     (async () => {
+      await initI18n();
       await hydrateSymptoms();
       const granted = await requestNotificationPermissions();
       if (granted) {
@@ -78,18 +78,20 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SidebarProvider>
-        <NavigationContainer ref={navigationRef}>
-          <StatusBar style="dark" />
-          <RootNavigator />
-          <Sidebar />
-          <DoctorAlert
-            visible={doctorAlert.visible}
-            onClose={() => setDoctorAlert({ visible: false })}
-            message={doctorAlert.message || ''}
-          />
-        </NavigationContainer>
-      </SidebarProvider>
+      <KeyboardProvider preload={false}>
+        <SidebarProvider>
+          <NavigationContainer ref={navigationRef}>
+            <StatusBar style="dark" />
+            <RootNavigator />
+            <Sidebar />
+            <DoctorAlert
+              visible={doctorAlert.visible}
+              onClose={() => setDoctorAlert({ visible: false })}
+              message={doctorAlert.message || ''}
+            />
+          </NavigationContainer>
+        </SidebarProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

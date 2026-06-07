@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { ScreenContainer, PrimaryButton, SecondaryButton } from '../components';
+import { ScreenContainer, PrimaryButton, SecondaryButton, KeyboardAwareScrollView } from '../components';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import { requestPasswordReset } from '../services/api/auth';
@@ -35,9 +35,10 @@ export function ForgotPasswordScreen({ navigation }: any) {
 
   const styles = StyleSheet.create({
     content: {
-      flex: 1,
+      flexGrow: 1,
       justifyContent: 'center',
       paddingHorizontal: s(24),
+      paddingVertical: sVertical(24),
     },
     title: {
       fontSize: font(typography.sizes.title),
@@ -139,7 +140,7 @@ export function ForgotPasswordScreen({ navigation }: any) {
 
   return (
     <ScreenContainer>
-      <View style={styles.content}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title} allowFontScaling maxFontSizeMultiplier={1.3}>
           Reset Password
         </Text>
@@ -168,7 +169,7 @@ export function ForgotPasswordScreen({ navigation }: any) {
         <View style={styles.secondaryButton}>
           <SecondaryButton title="Back to Sign In" onPress={handleBackToLogin} />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

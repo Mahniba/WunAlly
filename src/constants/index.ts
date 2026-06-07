@@ -11,6 +11,7 @@ export const TOKEN_KEYS = {
 
 export const STORAGE_KEYS = {
   USER_PROFILE: '@wunally/profile',
+  LANGUAGE_CHOSEN: '@wunally/language_chosen',
   ONBOARDING_DONE: '@wunally/onboarding_done',
   REMINDERS: '@wunally/reminders',
   EMERGENCY_CONTACTS: '@wunally/emergency_contacts',
