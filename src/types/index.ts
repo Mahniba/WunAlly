@@ -22,6 +22,17 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export type BabySizeArtKey = 'banana' | 'watermelon' | 'mango' | 'coconut' | 'yam' | 'pregnant';
+
+export interface PregnancyMilestone {
+  week: number;
+  fruit_comparison: string;
+  length_inch: number;
+  length_cm: number;
+  weight_oz: number;
+  weight_grams: number;
+}
+
 export interface WeekInfo {
   week: number;
   trimester: 'first' | 'second' | 'third';

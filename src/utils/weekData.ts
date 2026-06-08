@@ -1,6 +1,12 @@
-import { WeekInfo } from '../types';
+import { BabySizeArtKey, WeekInfo } from '../types';
+import {
+  formatMilestoneMeasurements,
+  getMilestoneBabySize,
+  getMilestoneForWeek,
+  getMilestoneVisual,
+} from './pregnancyMilestones';
 
-export type BabySizeArtKey = 'banana' | 'watermelon' | 'mango' | 'coconut' | 'yam' | 'pregnant';
+export type { BabySizeArtKey };
 
 type WeekEntry = WeekInfo & { artKey: BabySizeArtKey };
 
@@ -73,19 +79,29 @@ function buildWeek(week: number): WeekEntry {
 export function getWeekInfo(week: number): WeekInfo {
   const w = Math.max(1, Math.min(42, Math.floor(week)));
   const { artKey: _artKey, ...info } = buildWeek(w);
-  return info;
+  const milestoneSize = getMilestoneBabySize(w);
+  return { ...info, babySize: milestoneSize };
 }
 
 export function getBabySizeVisual(week: number): {
   babySize: string;
   development: string;
   artKey: BabySizeArtKey;
+  fruitComparison: string;
+  measurements: string | null;
 } {
-  const entry = buildWeek(Math.max(1, Math.min(42, Math.floor(week))));
+  const w = Math.max(1, Math.min(42, Math.floor(week)));
+  const entry = buildWeek(w);
+  const { artKey, fruitComparison } = getMilestoneVisual(w);
+  const milestone = getMilestoneForWeek(w);
+  const measurements = milestone ? formatMilestoneMeasurements(milestone) : null;
+
   return {
-    babySize: entry.babySize,
+    babySize: getMilestoneBabySize(w),
     development: entry.development,
-    artKey: entry.artKey,
+    artKey,
+    fruitComparison,
+    measurements,
   };
 }
 

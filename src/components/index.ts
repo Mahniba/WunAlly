@@ -11,6 +11,7 @@ export { AppIcon } from './AppIcon';
 export type { FeatherIconName } from './AppIcon';
 export { SectionHeader } from './SectionHeader';
 export { WeekProgress } from './WeekProgress';
+export { FruitMilestoneImage } from './FruitMilestoneImage';
 export { ReminderItem } from './ReminderItem';
 export { ChatBubble } from './ChatBubble';
 export { FloatingSOSButton } from './FloatingSOSButton';

@@ -1,0 +1,338 @@
+[
+  {
+    "week": 1,
+    "fruit_comparison": "Poppy Seed",
+    "length_inch": 0.0,
+    "length_cm": 0.0,
+    "weight_oz": 0.0,
+    "weight_grams": 0.0
+  },
+  {
+    "week": 2,
+    "fruit_comparison": "Sesame Seed",
+    "length_inch": 0.0,
+    "length_cm": 0.0,
+    "weight_oz": 0.0,
+    "weight_grams": 0.0
+  },
+  {
+    "week": 3,
+    "fruit_comparison": "Lentil",
+    "length_inch": 0.1,
+    "length_cm": 0.3,
+    "weight_oz": 0.0,
+    "weight_grams": 0.0
+  },
+  {
+    "week": 4,
+    "fruit_comparison": "Poppy Seed",
+    "length_inch": 0.04,
+    "length_cm": 0.1,
+    "weight_oz": 0.0,
+    "weight_grams": 0.0
+  },
+  {
+    "week": 5,
+    "fruit_comparison": "Sesame Seed",
+    "length_inch": 0.05,
+    "length_cm": 0.13,
+    "weight_oz": 0.0,
+    "weight_grams": 0.0
+  },
+  {
+    "week": 6,
+    "fruit_comparison": "Lentil",
+    "length_inch": 0.25,
+    "length_cm": 0.6,
+    "weight_oz": 0.0,
+    "weight_grams": 0.1
+  },
+  {
+    "week": 7,
+    "fruit_comparison": "Blueberry",
+    "length_inch": 0.51,
+    "length_cm": 1.3,
+    "weight_oz": 0.0,
+    "weight_grams": 0.3
+  },
+  {
+    "week": 8,
+    "fruit_comparison": "Kidney Bean",
+    "length_inch": 0.63,
+    "length_cm": 1.6,
+    "weight_oz": 0.04,
+    "weight_grams": 1.0
+  },
+  {
+    "week": 9,
+    "fruit_comparison": "Cherry",
+    "length_inch": 0.9,
+    "length_cm": 2.3,
+    "weight_oz": 0.07,
+    "weight_grams": 2.0
+  },
+  {
+    "week": 10,
+    "fruit_comparison": "Strawberry",
+    "length_inch": 1.22,
+    "length_cm": 3.1,
+    "weight_oz": 0.14,
+    "weight_grams": 4.0
+  },
+  {
+    "week": 11,
+    "fruit_comparison": "Fig",
+    "length_inch": 1.61,
+    "length_cm": 4.1,
+    "weight_oz": 0.25,
+    "weight_grams": 7.0
+  },
+  {
+    "week": 12,
+    "fruit_comparison": "Lime",
+    "length_inch": 2.13,
+    "length_cm": 5.4,
+    "weight_oz": 0.49,
+    "weight_grams": 14.0
+  },
+  {
+    "week": 13,
+    "fruit_comparison": "Pea Pod",
+    "length_inch": 2.91,
+    "length_cm": 7.4,
+    "weight_oz": 0.81,
+    "weight_grams": 23.0
+  },
+  {
+    "week": 14,
+    "fruit_comparison": "Lemon",
+    "length_inch": 3.42,
+    "length_cm": 8.7,
+    "weight_oz": 1.52,
+    "weight_grams": 43.0
+  },
+  {
+    "week": 15,
+    "fruit_comparison": "Apple",
+    "length_inch": 3.98,
+    "length_cm": 10.1,
+    "weight_oz": 2.47,
+    "weight_grams": 70.0
+  },
+  {
+    "week": 16,
+    "fruit_comparison": "Avocado",
+    "length_inch": 4.57,
+    "length_cm": 11.6,
+    "weight_oz": 3.53,
+    "weight_grams": 100.0
+  },
+  {
+    "week": 17,
+    "fruit_comparison": "Turnip",
+    "length_inch": 5.12,
+    "length_cm": 13.0,
+    "weight_oz": 4.94,
+    "weight_grams": 140.0
+  },
+  {
+    "week": 18,
+    "fruit_comparison": "Bell Pepper",
+    "length_inch": 5.59,
+    "length_cm": 14.2,
+    "weight_oz": 6.7,
+    "weight_grams": 190.0
+  },
+  {
+    "week": 19,
+    "fruit_comparison": "Heirloom Tomato",
+    "length_inch": 6.02,
+    "length_cm": 15.3,
+    "weight_oz": 8.47,
+    "weight_grams": 240.0
+  },
+  {
+    "week": 20,
+    "fruit_comparison": "Banana",
+    "length_inch": 6.46,
+    "length_cm": 16.4,
+    "weight_oz": 10.58,
+    "weight_grams": 300.0
+  },
+  {
+    "week": 21,
+    "fruit_comparison": "Carrot",
+    "length_inch": 10.51,
+    "length_cm": 26.7,
+    "weight_oz": 12.7,
+    "weight_grams": 360.0
+  },
+  {
+    "week": 22,
+    "fruit_comparison": "Papaya",
+    "length_inch": 10.94,
+    "length_cm": 27.8,
+    "weight_oz": 15.17,
+    "weight_grams": 430.0
+  },
+  {
+    "week": 23,
+    "fruit_comparison": "Mango",
+    "length_inch": 11.38,
+    "length_cm": 28.9,
+    "weight_oz": 17.99,
+    "weight_grams": 510.0
+  },
+  {
+    "week": 24,
+    "fruit_comparison": "Corn",
+    "length_inch": 11.81,
+    "length_cm": 30.0,
+    "weight_oz": 21.16,
+    "weight_grams": 600.0
+  },
+  {
+    "week": 25,
+    "fruit_comparison": "Cauliflower",
+    "length_inch": 13.62,
+    "length_cm": 34.6,
+    "weight_oz": 24.69,
+    "weight_grams": 700.0
+  },
+  {
+    "week": 26,
+    "fruit_comparison": "Scallion",
+    "length_inch": 14.02,
+    "length_cm": 35.6,
+    "weight_oz": 28.22,
+    "weight_grams": 800.0
+  },
+  {
+    "week": 27,
+    "fruit_comparison": "Rutabaga",
+    "length_inch": 14.41,
+    "length_cm": 36.6,
+    "weight_oz": 31.75,
+    "weight_grams": 900.0
+  },
+  {
+    "week": 28,
+    "fruit_comparison": "Eggplant",
+    "length_inch": 14.8,
+    "length_cm": 37.6,
+    "weight_oz": 38.8,
+    "weight_grams": 1100.0
+  },
+  {
+    "week": 29,
+    "fruit_comparison": "Butternut Squash",
+    "length_inch": 15.2,
+    "length_cm": 38.6,
+    "weight_oz": 42.33,
+    "weight_grams": 1200.0
+  },
+  {
+    "week": 30,
+    "fruit_comparison": "Cabbage",
+    "length_inch": 15.71,
+    "length_cm": 39.9,
+    "weight_oz": 49.38,
+    "weight_grams": 1400.0
+  },
+  {
+    "week": 31,
+    "fruit_comparison": "Coconut",
+    "length_inch": 16.18,
+    "length_cm": 41.1,
+    "weight_oz": 53.0,
+    "weight_grams": 1502.0
+  },
+  {
+    "week": 32,
+    "fruit_comparison": "Jicama",
+    "length_inch": 16.69,
+    "length_cm": 42.4,
+    "weight_oz": 60.0,
+    "weight_grams": 1702.0
+  },
+  {
+    "week": 33,
+    "fruit_comparison": "Pineapple",
+    "length_inch": 17.2,
+    "length_cm": 43.7,
+    "weight_oz": 68.0,
+    "weight_grams": 1918.0
+  },
+  {
+    "week": 34,
+    "fruit_comparison": "Cantaloupe",
+    "length_inch": 17.72,
+    "length_cm": 45.0,
+    "weight_oz": 74.96,
+    "weight_grams": 2125.0
+  },
+  {
+    "week": 35,
+    "fruit_comparison": "Honeydew Melon",
+    "length_inch": 18.19,
+    "length_cm": 46.2,
+    "weight_oz": 84.43,
+    "weight_grams": 2383.0
+  },
+  {
+    "week": 36,
+    "fruit_comparison": "Romaine Lettuce",
+    "length_inch": 18.66,
+    "length_cm": 47.4,
+    "weight_oz": 92.59,
+    "weight_grams": 2622.0
+  },
+  {
+    "week": 37,
+    "fruit_comparison": "Swiss Chard",
+    "length_inch": 19.13,
+    "length_cm": 48.6,
+    "weight_oz": 103.62,
+    "weight_grams": 2859.0
+  },
+  {
+    "week": 38,
+    "fruit_comparison": "Leek",
+    "length_inch": 19.61,
+    "length_cm": 49.8,
+    "weight_oz": 113.76,
+    "weight_grams": 3083.0
+  },
+  {
+    "week": 39,
+    "fruit_comparison": "Mini Watermelon",
+    "length_inch": 19.96,
+    "length_cm": 50.7,
+    "weight_oz": 123.46,
+    "weight_grams": 3401.0
+  },
+  {
+    "week": 40,
+    "fruit_comparison": "Pumpkin",
+    "length_inch": 20.16,
+    "length_cm": 51.2,
+    "weight_oz": 128.0,
+    "weight_grams": 3629.0
+  },
+  {
+    "week": 41,
+    "fruit_comparison": "Pumpkin",
+    "length_inch": 20.16,
+    "length_cm": 51.2,
+    "weight_oz": 128.0,
+    "weight_grams": 3629.0
+  },
+  {
+    "week": 42,
+    "fruit_comparison": "Newborn",
+    "length_inch": 20.0,
+    "length_cm": 50.0,
+    "weight_oz": 120.0,
+    "weight_grams": 3400.0
+  }
+]
