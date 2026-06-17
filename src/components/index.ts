@@ -24,3 +24,4 @@ export { DoctorAlert } from './DoctorAlert';
 export { SymptomsSettings } from './SymptomsSettings';
 export { CheckInTabButton } from './CheckInTabButton';
 export { NurseOrbitRadar } from './NurseOrbitRadar';
+export { HealthContextCard } from './HealthContextCard';

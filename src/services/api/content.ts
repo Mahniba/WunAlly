@@ -33,8 +33,14 @@ export interface HomeAction {
 
 export interface ChatConfig {
   welcome_message: string;
+  welcome_message_en?: string;
+  welcome_message_fr?: string;
   voice_prompts: string[];
+  voice_prompts_en?: string[];
+  voice_prompts_fr?: string[];
   input_placeholder: string;
+  input_placeholder_en?: string;
+  input_placeholder_fr?: string;
 }
 
 export interface ChatSupportOption {

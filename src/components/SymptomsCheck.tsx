@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { PrimaryButton, SecondaryButton, KeyboardModal } from './index';
+import { KeyboardModal } from './KeyboardModal';
+import { PrimaryButton } from './PrimaryButton';
+import { SecondaryButton } from './SecondaryButton';
 import { useSymptomsStore } from '../store/useSymptomsStore';
 import { colors, typography } from '../theme';
 

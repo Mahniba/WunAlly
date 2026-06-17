@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,8 +17,11 @@ import { useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { ScreenContainer, ChatBubble, ScreenHeader } from '../components';
 import { sendChatMessage } from '../services/chat';
+import { fetchChatHistory } from '../services/api/chat';
+import { hasAccessToken } from '../services/api/session';
 import { useContentStore } from '../store/useContentStore';
 import { useResponsive } from '../hooks/useResponsive';
+import { localizedText } from '../utils/localizedContent';
 import { colors, typography } from '../theme';
 import { currentLanguage } from '../i18n';
 import { isVoiceInputAvailable, listenOnce, speakText, stopSpeaking } from '../services/voice';
@@ -33,18 +37,28 @@ export function ChatScreen() {
   const providerName = params.providerName;
   const voiceEnabled = params.voice ?? false;
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const chatConfig = useContentStore((s) => s.content.chat);
   const hydrateContent = useContentStore((s) => s.hydrate);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [welcomeShown, setWelcomeShown] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState('');
   const [isVoiceListening, setIsVoiceListening] = useState(false);
   const [sending, setSending] = useState(false);
   const [voiceInputReady, setVoiceInputReady] = useState(false);
+  const [showEscalation, setShowEscalation] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   const { s, font, horizontalPadding } = useResponsive();
+
+  const welcomeMessage = useMemo(
+    () => localizedText(chatConfig, 'welcome_message', i18n.language),
+    [chatConfig, i18n.language],
+  );
+  const inputPlaceholder = useMemo(
+    () => localizedText(chatConfig, 'input_placeholder', i18n.language) || t('chat.placeholder'),
+    [chatConfig, i18n.language, t],
+  );
 
   const title =
     mode === 'nurse'
@@ -60,15 +74,55 @@ export function ChatScreen() {
   }, [hydrateContent]);
 
   useEffect(() => {
-    if (!welcomeShown && chatConfig.welcome_message) {
-      setMessages([{ id: 'welcome', text: chatConfig.welcome_message, isUser: false }]);
-      setWelcomeShown(true);
+    let cancelled = false;
+
+    async function loadHistory() {
+      if (!(await hasAccessToken())) {
+        if (!cancelled && welcomeMessage) {
+          setMessages([{ id: 'welcome', text: welcomeMessage, isUser: false }]);
+        }
+        if (!cancelled) setHistoryLoaded(true);
+        return;
+      }
+
+      try {
+        const history = await fetchChatHistory(mode);
+        if (cancelled) return;
+
+        if (history.length > 0) {
+          setMessages(
+            history.map((item) => ({
+              id: String(item.id),
+              text: item.text,
+              isUser: item.role === 'user',
+            })),
+          );
+        } else if (welcomeMessage) {
+          setMessages([{ id: 'welcome', text: welcomeMessage, isUser: false }]);
+        }
+      } catch (error) {
+        console.warn('Failed to load chat history:', error);
+        if (!cancelled && welcomeMessage) {
+          setMessages([{ id: 'welcome', text: welcomeMessage, isUser: false }]);
+        }
+      } finally {
+        if (!cancelled) setHistoryLoaded(true);
+      }
     }
-  }, [chatConfig.welcome_message, welcomeShown]);
+
+    setHistoryLoaded(false);
+    setMessages([]);
+    setShowEscalation(false);
+    loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, welcomeMessage]);
 
   useEffect(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-  }, [messages]);
+  }, [messages, historyLoaded]);
 
   const send = async (text?: string, inputMode: 'text' | 'voice' = 'text') => {
     const toSend = (text ?? input).trim();
@@ -84,6 +138,7 @@ export function ChatScreen() {
         inputMode,
         providerId: providerId ?? null,
       });
+      if (res.escalated) setShowEscalation(true);
       const body = res.disclaimer ? `${res.text}\n\n— ${res.disclaimer}` : res.text;
       const reply = { id: (Date.now() + 1).toString(), text: body, isUser: false };
       setMessages((m) => [...m, reply]);
@@ -122,6 +177,26 @@ export function ChatScreen() {
       borderRadius: 8,
     },
     disclaimerText: { fontSize: font(typography.sizes.sm), color: colors.textSecondary },
+    escalation: {
+      marginHorizontal: horizontalPadding,
+      marginBottom: s(8),
+      padding: s(10),
+      backgroundColor: colors.softPurple,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.coral,
+    },
+    escalationText: {
+      fontSize: font(typography.sizes.sm),
+      color: colors.coralDark,
+      fontWeight: typography.weights.medium,
+    },
+    loadingRow: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: s(24),
+    },
     list: { flex: 1 },
     listContent: {
       paddingHorizontal: horizontalPadding,
@@ -191,17 +266,30 @@ export function ChatScreen() {
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>{t('chat.disclaimer')}</Text>
         </View>
-        <ScrollView
-          ref={scrollRef}
-          style={styles.list}
-          contentContainerStyle={[styles.listContent, { paddingBottom: s(24) }]}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-        >
-          {messages.map((m) => (
-            <ChatBubble key={m.id} message={m.text} isUser={m.isUser} />
-          ))}
-        </ScrollView>
+        {showEscalation ? (
+          <View style={styles.escalation}>
+            <Text style={styles.escalationText}>{t('chat.escalated')}</Text>
+          </View>
+        ) : null}
+        {!historyLoaded ? (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator color={colors.coral} />
+            <Text style={[styles.disclaimerText, { marginTop: s(8) }]}>{t('chat.loadingHistory')}</Text>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollRef}
+            style={styles.list}
+            contentContainerStyle={[styles.listContent, { paddingBottom: s(24) }]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          >
+            {messages.map((m) => (
+              <ChatBubble key={m.id} message={m.text} isUser={m.isUser} />
+            ))}
+            {sending ? <ActivityIndicator color={colors.coral} style={{ marginTop: s(8) }} /> : null}
+          </ScrollView>
+        )}
         {isVoiceListening && (
           <View style={styles.voiceBanner}>
             <Text style={styles.voiceBannerText}>{t('chat.listening')}</Text>
@@ -214,24 +302,28 @@ export function ChatScreen() {
                 style={styles.input}
                 value={input}
                 onChangeText={setInput}
-                placeholder={chatConfig.input_placeholder || t('chat.placeholder')}
+                placeholder={inputPlaceholder}
                 placeholderTextColor={colors.textMuted}
                 onSubmitEditing={() => send()}
                 returnKeyType="send"
-                editable={!isVoiceListening}
+                editable={!isVoiceListening && historyLoaded}
               />
               <TouchableOpacity
                 style={[styles.inputMic, !voiceInputReady && { opacity: 0.45 }]}
                 onPress={handleVoice}
                 accessibilityLabel={t('chat.listening')}
+                disabled={!historyLoaded}
               >
                 <Text style={styles.inputMicText}>🎤</Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
-              style={[styles.sendBtn, (!input.trim() || isVoiceListening) && styles.sendBtnDisabled]}
+              style={[
+                styles.sendBtn,
+                (!input.trim() || isVoiceListening || !historyLoaded) && styles.sendBtnDisabled,
+              ]}
               onPress={() => send()}
-              disabled={!input.trim() || isVoiceListening}
+              disabled={!input.trim() || isVoiceListening || !historyLoaded}
             >
               <Text style={styles.sendIcon}>➤</Text>
             </TouchableOpacity>
