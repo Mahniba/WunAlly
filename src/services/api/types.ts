@@ -2,6 +2,8 @@ export interface ApiUser {
   id: string | number;
   email: string;
   name: string;
+  phone?: string;
+  phone_verified?: boolean;
 }
 
 export interface AuthTokens {

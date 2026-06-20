@@ -20,6 +20,7 @@ export const STORAGE_KEYS = {
   CARE_PLAN_NOTES: '@wunally/care_plan_notes',
   SYMPTOM_ENTRIES: '@wunally/symptom_entries',
   SYMPTOM_REMINDER_TIME: '@wunally/symptom_reminder_time',
+  DAILY_SYMPTOM_NOTIFICATION_ID: '@wunally/daily_symptom_notification_id',
 } as const;
 
 export const nutritionTipsSidebar = [

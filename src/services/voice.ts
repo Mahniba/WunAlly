@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
+import { matchesEmergencyPhrase } from './emergencyPhrase';
 
 /** expo-speech-recognition requires a dev build — not available in Expo Go. */
 type SpeechRecognitionModule = {
@@ -120,4 +121,66 @@ export async function listenOnce(language: string, timeoutMs = 12000): Promise<s
       finish(null);
     }
   });
+}
+
+/**
+ * Listens for an emergency safe phrase while voice mode is active (e.g. "WunAlly emergency").
+ * Restarts after each speech segment until stopped via the returned cleanup function.
+ */
+export async function startEmergencyPhraseListener(
+  onPhrase: () => void,
+  language: string,
+): Promise<() => void> {
+  const rec = await getRecognition();
+  if (!rec) return () => {};
+
+  const granted = await requestVoicePermissions();
+  if (!granted) return () => {};
+
+  let stopped = false;
+  const lang = language.startsWith('fr') ? 'fr-FR' : 'en-US';
+
+  const startListening = () => {
+    if (stopped) return;
+    try {
+      rec.start({
+        lang,
+        interimResults: true,
+        continuous: true,
+        requiresOnDeviceRecognition: true,
+      });
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const resultSub = rec.addListener('result', (event) => {
+    const transcript = event.results?.[0]?.transcript?.trim();
+    if (!transcript || !matchesEmergencyPhrase(transcript)) return;
+    stopped = true;
+    onPhrase();
+    try {
+      rec.stop();
+    } catch {
+      /* ignore */
+    }
+  });
+  const errorSub = rec.addListener('error', () => {});
+  const endSub = rec.addListener('speechend', () => {
+    if (!stopped) startListening();
+  });
+
+  startListening();
+
+  return () => {
+    stopped = true;
+    resultSub.remove();
+    errorSub.remove();
+    endSub.remove();
+    try {
+      rec.stop();
+    } catch {
+      /* ignore */
+    }
+  };
 }

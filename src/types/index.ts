@@ -11,6 +11,8 @@ export interface Reminder {
   id: string;
   title: string;
   time: string;
+  /** YYYY-MM-DD for one-off appointments; omit for daily repeating reminders. */
+  scheduledDate?: string;
   completed: boolean;
   iconType?: 'doctor' | 'vitamins' | 'general';
 }

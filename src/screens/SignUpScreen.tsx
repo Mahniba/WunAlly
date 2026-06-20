@@ -25,7 +25,11 @@ export function SignUpScreen({ navigation }: any) {
         setError('Passwords do not match');
         return;
       }
-      await signUp(email, password, fullName);
+      if (password.length < 8) {
+        setError('Password must be at least 8 characters');
+        return;
+      }
+      await signUp(email.trim(), password, fullName.trim());
       resetAfterAuth(navigation, false);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Sign up failed. Please try again.'));
@@ -173,6 +177,7 @@ export function SignUpScreen({ navigation }: any) {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoCapitalize="none"
           />
         </View>
 

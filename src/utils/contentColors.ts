@@ -17,6 +17,6 @@ const COLOR_MAP: Record<string, string> = {
   moodStressed: colors.moodStressed,
 };
 
-export function colorFromKey(key: string, fallback = colors.chipTrack): string {
-  return COLOR_MAP[key] ?? fallback;
+export function colorFromKey(key: string, fallback?: string): string {
+  return COLOR_MAP[key] ?? fallback ?? colors.chipTrack;
 }

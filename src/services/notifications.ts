@@ -1,9 +1,22 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import { STORAGE_KEYS } from '../constants';
+import { storage } from './storage';
+
+export function configureNotificationHandler(): void {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 export async function requestNotificationPermissions(): Promise<boolean> {
   try {
-    // If not running on a physical device, skip permission flow
     if (!Device || !Device.isDevice) return false;
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -18,29 +31,34 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 }
 
 export async function scheduleDailyReminder(hour = 9, minute = 0): Promise<string | number | undefined> {
-  // Cancel existing daily reminders (caller can manage tokens if needed)
   try {
-    await Notifications.cancelAllScheduledNotificationsAsync();
-  } catch {}
-
-  const trigger = {
-    hour,
-    minute,
-    repeats: true,
-  } as any;
+    const existing = await storage.getItem(STORAGE_KEYS.DAILY_SYMPTOM_NOTIFICATION_ID);
+    if (existing) {
+      await Notifications.cancelScheduledNotificationAsync(existing);
+    }
+  } catch {
+    /* ignore */
+  }
 
   const id = await Notifications.scheduleNotificationAsync({
     content: {
-      title: "Daily symptom check",
-      body: 'Tap to record today\'s symptoms (nausea, headache, dizziness).',
+      title: 'Daily symptom check',
+      body: "Tap to record today's symptoms and mood.",
       sound: true,
+      data: { type: 'daily_symptom' },
     },
-    trigger,
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+    },
   });
 
+  await storage.setItem(STORAGE_KEYS.DAILY_SYMPTOM_NOTIFICATION_ID, String(id));
   return id;
 }
 
 export async function cancelAllReminders(): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
+  await storage.removeItem(STORAGE_KEYS.DAILY_SYMPTOM_NOTIFICATION_ID);
 }

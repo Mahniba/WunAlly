@@ -20,7 +20,15 @@ import { useContentStore } from '../store/useContentStore';
 import { useResponsive } from '../hooks/useResponsive';
 import { colors, typography } from '../theme';
 import { currentLanguage } from '../i18n';
-import { isVoiceInputAvailable, listenOnce, speakText, stopSpeaking } from '../services/voice';
+import { executeEmergencySos } from '../services/emergencySos';
+import { matchesEmergencyPhrase } from '../services/emergencyPhrase';
+import {
+  isVoiceInputAvailable,
+  listenOnce,
+  speakText,
+  startEmergencyPhraseListener,
+  stopSpeaking,
+} from '../services/voice';
 import type { RootStackParamList } from '../navigation/types';
 
 type ChatMessage = { id: string; text: string; isUser: boolean };
@@ -43,8 +51,22 @@ export function ChatScreen() {
   const [sending, setSending] = useState(false);
   const [voiceInputReady, setVoiceInputReady] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const sosBusyRef = useRef(false);
   const insets = useSafeAreaInsets();
   const { s, font, horizontalPadding } = useResponsive();
+
+  const runEmergencySos = React.useCallback(async () => {
+    if (sosBusyRef.current) return;
+    sosBusyRef.current = true;
+    stopSpeaking();
+    await executeEmergencySos({
+      title: t('sos.title'),
+      sentMessage: t('chat.emergencyPhraseSent'),
+      partialMessage: t('sos.alertPartial'),
+      noContactMessage: t('sos.noContact'),
+    });
+    sosBusyRef.current = false;
+  }, [t]);
 
   const title =
     mode === 'nurse'
@@ -60,6 +82,17 @@ export function ChatScreen() {
   }, [hydrateContent]);
 
   useEffect(() => {
+    if (!voiceEnabled) return;
+    let cleanup: (() => void) | undefined;
+    void startEmergencyPhraseListener(() => {
+      void runEmergencySos();
+    }, currentLanguage()).then((stop) => {
+      cleanup = stop;
+    });
+    return () => cleanup?.();
+  }, [voiceEnabled, runEmergencySos]);
+
+  useEffect(() => {
     if (!welcomeShown && chatConfig.welcome_message) {
       setMessages([{ id: 'welcome', text: chatConfig.welcome_message, isUser: false }]);
       setWelcomeShown(true);
@@ -73,6 +106,11 @@ export function ChatScreen() {
   const send = async (text?: string, inputMode: 'text' | 'voice' = 'text') => {
     const toSend = (text ?? input).trim();
     if (!toSend || sending) return;
+    if (matchesEmergencyPhrase(toSend)) {
+      await runEmergencySos();
+      if (!text) setInput('');
+      return;
+    }
     const userMsg = { id: Date.now().toString(), text: toSend, isUser: true };
     setMessages((m) => [...m, userMsg]);
     if (!text) setInput('');
@@ -190,6 +228,11 @@ export function ChatScreen() {
         <ScreenHeader title={title} />
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>{t('chat.disclaimer')}</Text>
+          {voiceEnabled ? (
+            <Text style={[styles.disclaimerText, { marginTop: s(6) }]}>
+              {t('chat.emergencyPhraseHint')}
+            </Text>
+          ) : null}
         </View>
         <ScrollView
           ref={scrollRef}

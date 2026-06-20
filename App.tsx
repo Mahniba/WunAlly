@@ -8,7 +8,11 @@ import { SidebarProvider } from './src/context/SidebarContext';
 import { Sidebar } from './src/components/Sidebar';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useOnboardingStore, useSymptomsStore } from './src/store';
-import { requestNotificationPermissions, scheduleDailyReminder } from './src/services/notifications';
+import {
+  configureNotificationHandler,
+  requestNotificationPermissions,
+  scheduleDailyReminder,
+} from './src/services/notifications';
 import { evaluateSymptomRules } from './src/services/symptomRules';
 import { logAlertEvent } from './src/services/api/alerts';
 import { hasAccessToken } from './src/services/api/session';
@@ -17,15 +21,14 @@ import { getSymptomReminderTime } from './src/services/storage';
 import { initI18n } from './src/i18n';
 
 export default function App() {
-  const setDone = useOnboardingStore((s) => s.setDone);
   const hydrateSymptoms = useSymptomsStore((s) => s.hydrate);
   const entries = useSymptomsStore((s) => s.entries);
+  const [ready, setReady] = React.useState(false);
   const [doctorAlert, setDoctorAlert] = React.useState<{ visible: boolean; message?: string }>({ visible: false });
   const lastAlertKeyRef = React.useRef<string | null>(null);
-  
-  // NOTE: Avoid dev-only UI overlays in production builds.
 
   React.useEffect(() => {
+    configureNotificationHandler();
     (async () => {
       await initI18n();
       await hydrateSymptoms();
@@ -46,10 +49,11 @@ export default function App() {
           } else {
             await scheduleDailyReminder(9, 0);
           }
-        } catch (e) {
+        } catch {
           await scheduleDailyReminder(9, 0);
         }
       }
+      setReady(true);
     })();
   }, [hydrateSymptoms]);
 
@@ -75,6 +79,10 @@ export default function App() {
       }
     }
   }, [entries]);
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <SafeAreaProvider>

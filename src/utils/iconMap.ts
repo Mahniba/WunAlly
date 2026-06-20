@@ -47,3 +47,37 @@ export function iconForNetwork(key: string): FeatherIconName {
 export function iconForSidebar(screen: string): FeatherIconName {
   return SIDEBAR_ICONS[screen] ?? 'chevron-right';
 }
+
+const SYMPTOM_ICONS: Record<string, FeatherIconName> = {
+  swelling: 'maximize-2',
+  heartburn: 'zap',
+  constipation: 'minus-circle',
+  stretch_marks: 'git-commit',
+  nausea: 'frown',
+  headache: 'target',
+  dizzy: 'rotate-cw',
+  fatigue: 'moon',
+  back_pain: 'minimize-2',
+  reduced_baby_movement: 'heart',
+  strong_kicks: 'activity',
+  irregular_pattern: 'bar-chart-2',
+  normal_discharge: 'droplet',
+  unusual_discharge: 'alert-circle',
+  itching: 'slash',
+  odor: 'wind',
+  severe_headache: 'alert-triangle',
+  blurred_vision: 'eye-off',
+  vaginal_bleeding: 'alert-octagon',
+  severe_abdominal_pain: 'alert-triangle',
+  fever: 'zap',
+  severe_vomiting: 'alert-circle',
+  insomnia: 'clock',
+  foul_discharge: 'alert-triangle',
+  difficulty_breathing: 'cloud',
+  swelling_face_hands_feet: 'maximize-2',
+  none_today: 'heart',
+};
+
+export function iconForSymptom(key: string): FeatherIconName {
+  return SYMPTOM_ICONS[key] ?? 'circle';
+}

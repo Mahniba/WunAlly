@@ -53,6 +53,8 @@ function normalizeContent(raw: Partial<AppContent>): AppContent {
 
 interface ContentState {
   loaded: boolean;
+  /** True when the latest content fetch failed (using cache / offline catalogs). */
+  isOfflineMode: boolean;
   content: AppContent;
   hydrate: () => Promise<void>;
   getSymptoms: (category: string) => SymptomOption[];
@@ -75,6 +77,7 @@ async function saveCache(content: AppContent): Promise<void> {
 
 export const useContentStore = create<ContentState>((set, get) => ({
   loaded: false,
+  isOfflineMode: false,
   content: FALLBACK,
 
   hydrate: async () => {
@@ -86,11 +89,13 @@ export const useContentStore = create<ContentState>((set, get) => ({
     try {
       const fresh = normalizeContent(await fetchAppContent());
       await saveCache(fresh);
-      set({ content: fresh, loaded: true });
+      set({ content: fresh, loaded: true, isOfflineMode: false });
     } catch (error) {
       console.warn('Failed to fetch app content:', error);
       if (!cached) {
-        set({ content: FALLBACK, loaded: true });
+        set({ content: FALLBACK, loaded: true, isOfflineMode: true });
+      } else {
+        set({ isOfflineMode: true });
       }
     }
   },

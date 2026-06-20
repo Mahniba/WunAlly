@@ -7,6 +7,7 @@ import {
   Alert,
   Share,
   Pressable,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -150,6 +151,27 @@ export function SOSScreen() {
       textAlign: 'center',
       paddingHorizontal: s(16),
     },
+    phoneSosCard: {
+      width: '100%',
+      maxWidth: 320,
+      backgroundColor: colors.softPink,
+      borderRadius: 16,
+      padding: s(14),
+      marginBottom: s(16),
+      borderWidth: 1,
+      borderColor: colors.softPink,
+    },
+    phoneSosTitle: {
+      fontSize: font(typography.sizes.sm),
+      fontWeight: typography.weights.semibold,
+      color: colors.textPrimary,
+      marginBottom: s(6),
+    },
+    phoneSosBody: {
+      fontSize: font(typography.sizes.sm),
+      color: colors.textSecondary,
+      lineHeight: font(20),
+    },
   });
 
   return (
@@ -162,6 +184,12 @@ export function SOSScreen() {
         {!sent ? (
           <>
             <Text style={styles.hint}>{t('sos.holdHint')}</Text>
+            <View style={styles.phoneSosCard}>
+              <Text style={styles.phoneSosTitle}>{t('sos.phoneSosTitle')}</Text>
+              <Text style={styles.phoneSosBody}>
+                {Platform.OS === 'ios' ? t('sos.phoneSosIos') : t('sos.phoneSosAndroid')}
+              </Text>
+            </View>
             <Pressable
               onPressIn={onPressIn}
               onPressOut={onPressOut}

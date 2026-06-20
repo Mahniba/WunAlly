@@ -5,6 +5,7 @@ export interface ApiReminder {
   id: number;
   title: string;
   time: string;
+  scheduled_date?: string | null;
   completed: boolean;
   icon_type?: string;
   client_id?: string;
@@ -13,6 +14,7 @@ export interface ApiReminder {
 export interface CreateReminderPayload {
   title: string;
   time: string;
+  scheduled_date?: string | null;
   completed?: boolean;
   icon_type?: string;
   client_id?: string;

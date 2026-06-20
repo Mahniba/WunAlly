@@ -47,7 +47,7 @@ export function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        sceneContainerStyle: styles.scene,
+        sceneStyle: styles.scene,
         tabBarStyle: [
           styles.tabBar,
           shadows.tabBar,

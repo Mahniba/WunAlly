@@ -25,7 +25,11 @@ export function LoginScreen({ navigation }: any) {
   const handleLogin = async () => {
     try {
       setError('');
-      await login(email, password);
+      if (!email.trim() || !password) {
+        setError('Please enter your email and password');
+        return;
+      }
+      await login(email.trim(), password);
       const currentProfile = useProfileStore.getState().profile;
       resetAfterAuth(navigation, Boolean(currentProfile?.name?.trim()));
     } catch (err: unknown) {

@@ -14,15 +14,26 @@ import {
 } from '../services/api/careMapper';
 import { hasAccessToken } from '../services/api/session';
 import { getStoredReminders, setStoredReminders } from '../services/storage';
+import { requestNotificationPermissions } from '../services/notifications';
+import {
+  cancelReminderNotifications,
+  rescheduleAllReminderNotifications,
+  scheduleReminderNotifications,
+} from '../services/reminderNotifications';
+import { addReminderToCalendar, removeCalendarEvent } from '../services/calendarEvents';
 
 function randomId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+type AddReminderInput = Omit<Reminder, 'id' | 'completed'> & {
+  addToCalendar?: boolean;
+};
+
 interface RemindersState {
   reminders: ReminderLocal[];
   setReminders: (r: Reminder[]) => void;
-  addReminder: (r: Omit<Reminder, 'id' | 'completed'>) => Promise<void>;
+  addReminder: (r: AddReminderInput) => Promise<void>;
   toggleReminder: (id: string) => Promise<void>;
   removeReminder: (id: string) => Promise<void>;
   hydrate: () => Promise<void>;
@@ -57,28 +68,64 @@ async function uploadMissing(local: ReminderLocal[], remote: ReminderLocal[]): P
   return uploaded;
 }
 
+async function finalizeReminder(reminder: ReminderLocal, addToCalendar?: boolean): Promise<ReminderLocal> {
+  let next = { ...reminder };
+
+  if (addToCalendar && !next.calendarEventId) {
+    try {
+      const eventId = await addReminderToCalendar(next);
+      if (eventId) next = { ...next, calendarEventId: eventId };
+    } catch (e) {
+      console.error('Failed to add calendar event:', e);
+    }
+  }
+
+  await requestNotificationPermissions();
+  await cancelReminderNotifications(next.notificationIds);
+  const notificationIds = await scheduleReminderNotifications(next);
+  return { ...next, notificationIds };
+}
+
+async function persistAndSchedule(
+  set: (partial: Partial<RemindersState>) => void,
+  get: () => RemindersState,
+  reminders: ReminderLocal[],
+): Promise<ReminderLocal[]> {
+  const scheduled = await rescheduleAllReminderNotifications(reminders);
+  set({ reminders: scheduled });
+  await setStoredReminders(JSON.stringify(scheduled));
+  return scheduled;
+}
+
 export const useRemindersStore = create<RemindersState>((set, get) => ({
   reminders: [],
 
   setReminders: (reminders) => {
-    set({ reminders: reminders as ReminderLocal[] });
-    get().persist();
+    void persistAndSchedule(set, get, reminders as ReminderLocal[]);
   },
 
   addReminder: async (r) => {
-    const reminder: ReminderLocal = {
-      ...r,
+    const { addToCalendar, ...fields } = r;
+    let reminder: ReminderLocal = {
+      ...fields,
       id: randomId(),
       completed: false,
-      iconType: r.iconType ?? 'general',
+      iconType: fields.iconType ?? 'general',
     };
-    set({ reminders: [...get().reminders, reminder] });
+
+    reminder = await finalizeReminder(reminder, addToCalendar);
+    const next = [...get().reminders, reminder];
+    set({ reminders: next });
     await get().persist();
 
     if (await hasAccessToken()) {
       try {
         const api = await createReminder(localReminderToCreatePayload(reminder));
-        const synced = apiReminderToLocal(api);
+        const synced: ReminderLocal = {
+          ...apiReminderToLocal(api),
+          notificationIds: reminder.notificationIds,
+          calendarEventId: reminder.calendarEventId,
+        };
         set({
           reminders: get().reminders.map((x) => (x.id === reminder.id ? synced : x)),
         });
@@ -93,7 +140,15 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
     const current = get().reminders.find((x) => x.id === id);
     if (!current) return;
 
-    const updated = { ...current, completed: !current.completed };
+    const updated: ReminderLocal = { ...current, completed: !current.completed };
+    if (updated.completed) {
+      await cancelReminderNotifications(updated.notificationIds);
+      updated.notificationIds = [];
+    } else {
+      const withNotifs = await finalizeReminder(updated, false);
+      Object.assign(updated, withNotifs);
+    }
+
     set({
       reminders: get().reminders.map((x) => (x.id === id ? updated : x)),
     });
@@ -104,7 +159,15 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
         const api = await updateReminder(updated.serverId, { completed: updated.completed });
         const synced = apiReminderToLocal(api);
         set({
-          reminders: get().reminders.map((x) => (x.id === id ? synced : x)),
+          reminders: get().reminders.map((x) =>
+            x.id === id
+              ? {
+                  ...synced,
+                  notificationIds: updated.notificationIds,
+                  calendarEventId: x.calendarEventId,
+                }
+              : x,
+          ),
         });
         await get().persist();
       } catch (e) {
@@ -115,6 +178,9 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
 
   removeReminder: async (id) => {
     const current = get().reminders.find((x) => x.id === id);
+    await cancelReminderNotifications(current?.notificationIds);
+    await removeCalendarEvent(current?.calendarEventId);
+
     set({ reminders: get().reminders.filter((x) => x.id !== id) });
     await get().persist();
 
@@ -134,7 +200,9 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
     }
 
     const local = await loadLocal();
-    set({ reminders: local });
+    const scheduled = await rescheduleAllReminderNotifications(local);
+    set({ reminders: scheduled });
+    await setStoredReminders(JSON.stringify(scheduled));
   },
 
   syncFromApi: async () => {
@@ -144,16 +212,14 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
 
     try {
       let remote = (await listReminders()).map(apiReminderToLocal);
-      const uploaded = await uploadMissing(local, remote);
-      if (uploaded.length > 0) {
-        remote = (await listReminders()).map(apiReminderToLocal);
-      }
+      await uploadMissing(local, remote);
+      remote = (await listReminders()).map(apiReminderToLocal);
       const merged = mergeReminders(local, remote);
-      set({ reminders: merged });
-      await setStoredReminders(JSON.stringify(merged));
+      await persistAndSchedule(set, get, merged);
     } catch (e) {
       console.error('Failed to sync reminders:', e);
-      set({ reminders: local });
+      const scheduled = await rescheduleAllReminderNotifications(local);
+      set({ reminders: scheduled });
     }
   },
 
@@ -162,6 +228,10 @@ export const useRemindersStore = create<RemindersState>((set, get) => ({
   },
 
   clearAll: async () => {
+    for (const reminder of get().reminders) {
+      await cancelReminderNotifications(reminder.notificationIds);
+      await removeCalendarEvent(reminder.calendarEventId);
+    }
     set({ reminders: [] });
     await setStoredReminders(JSON.stringify([]));
   },

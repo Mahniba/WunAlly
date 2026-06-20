@@ -4,6 +4,7 @@ export interface SymptomOption {
   key: string;
   label: string;
   emoji: string;
+  description?: string;
 }
 
 export interface CheckInCategory {
@@ -22,6 +23,7 @@ export interface MoodOption {
   label: string;
   emoji: string;
   color_key: string;
+  description?: string;
 }
 
 export interface HomeAction {

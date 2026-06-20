@@ -24,3 +24,8 @@ export { DoctorAlert } from './DoctorAlert';
 export { SymptomsSettings } from './SymptomsSettings';
 export { CheckInTabButton } from './CheckInTabButton';
 export { NurseOrbitRadar } from './NurseOrbitRadar';
+export { SymptomCheckInOfflineLayout } from './SymptomCheckInOfflineLayout';
+export { OfflineMoodCheckIn } from './OfflineMoodCheckIn';
+export { CheckInCard } from './checkin/CheckInCard';
+export { CheckInCategoryTabs } from './checkin/CheckInCategoryTabs';
+export { CheckInIcon } from './checkin/CheckInIcons';

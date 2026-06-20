@@ -8,7 +8,7 @@ export function VerificationScreen({ navigation, route }: any) {
   const { s, sVertical, font } = useResponsive();
   const email = route?.params?.email || 'user@example.com';
   const [code, setCode] = useState('');
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+  const [timeLeft, setTimeLeft] = useState(600);
   const [resendDisabled, setResendDisabled] = useState(true);
 
   useEffect(() => {
@@ -24,17 +24,6 @@ export function VerificationScreen({ navigation, route }: any) {
 
     return () => clearInterval(interval);
   }, []);
-
-  const handleVerify = () => {
-    // TODO: Implement verification logic
-    console.log('Verifying code:', code);
-  };
-
-  const handleResend = () => {
-    setTimeLeft(600);
-    setResendDisabled(true);
-    console.log('Resending verification code');
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -60,9 +49,7 @@ export function VerificationScreen({ navigation, route }: any) {
       marginRight: 'auto',
       marginBottom: sVertical(24),
     },
-    icon: {
-      fontSize: font(40),
-    },
+    icon: { fontSize: font(40) },
     title: {
       fontSize: font(typography.sizes.title),
       fontWeight: typography.weights.bold,
@@ -80,9 +67,7 @@ export function VerificationScreen({ navigation, route }: any) {
       fontWeight: typography.weights.semibold,
       color: colors.textPrimary,
     },
-    codeContainer: {
-      marginVertical: sVertical(32),
-    },
+    codeContainer: { marginVertical: sVertical(32) },
     codeLabel: {
       fontSize: font(typography.sizes.sm),
       fontWeight: typography.weights.semibold,
@@ -115,18 +100,13 @@ export function VerificationScreen({ navigation, route }: any) {
       gap: s(4),
       marginBottom: sVertical(24),
     },
-    resendText: {
-      fontSize: font(typography.sizes.sm),
-      color: colors.textSecondary,
-    },
+    resendText: { fontSize: font(typography.sizes.sm), color: colors.textSecondary },
     resendLink: {
       fontSize: font(typography.sizes.sm),
       color: resendDisabled ? colors.border : colors.lavenderDark,
       fontWeight: typography.weights.semibold,
     },
-    buttonContainer: {
-      marginBottom: sVertical(16),
-    },
+    buttonContainer: { marginBottom: sVertical(16) },
   });
 
   return (
@@ -163,14 +143,14 @@ export function VerificationScreen({ navigation, route }: any) {
         </View>
 
         <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive a code?</Text>
-          <TouchableOpacity onPress={handleResend} disabled={resendDisabled} activeOpacity={0.7}>
+          <Text style={styles.resendText}>Didn&apos;t receive a code?</Text>
+          <TouchableOpacity disabled={resendDisabled} activeOpacity={0.7}>
             <Text style={styles.resendLink}>Resend</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.buttonContainer}>
-          <PrimaryButton title="Verify" onPress={handleVerify} disabled={code.length !== 6} />
+          <PrimaryButton title="Verify" disabled={code.length !== 6} onPress={() => navigation.goBack()} />
         </View>
       </KeyboardAwareScrollView>
     </ScreenContainer>
