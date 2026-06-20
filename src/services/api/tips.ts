@@ -1,4 +1,5 @@
 import { apiRequest } from './client';
+import { currentLanguage } from '../../i18n';
 
 export interface PersonalizedTip {
   title: string;
@@ -12,6 +13,8 @@ export interface TipsResponse {
 }
 
 export async function fetchPersonalizedTips(week?: number): Promise<TipsResponse> {
-  const path = week !== undefined ? `/me/tips/?week=${week}` : '/me/tips/';
-  return apiRequest<TipsResponse>(path);
+  const lang = currentLanguage();
+  const params = new URLSearchParams({ language: lang });
+  if (week !== undefined) params.set('week', String(week));
+  return apiRequest<TipsResponse>(`/me/tips/?${params.toString()}`);
 }

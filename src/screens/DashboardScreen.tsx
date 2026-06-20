@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   TabScreenContainer,
   WeekProgress,
@@ -13,6 +13,8 @@ import {
 import MoodSummary from '../components/MoodSummary';
 import { useSidebar } from '../context/SidebarContext';
 import { useProfileStore } from '../store';
+import { useMoodStore } from '../store/useMoodStore';
+import { useSymptomsStore } from '../store/useSymptomsStore';
 import { useContentStore } from '../store/useContentStore';
 import { usePersonalizedTips } from '../hooks/usePersonalizedTips';
 import { getWeekInfo } from '../utils/weekData';
@@ -37,13 +39,25 @@ export function DashboardScreen() {
   const week = profile?.weeksPregnant;
   const resolvedWeek = week ? Math.max(1, Math.min(42, week)) : 1;
   const weekInfo = week ? getWeekInfo(resolvedWeek) : null;
-  const { tips: personalizedTips, loading: tipsLoading } = usePersonalizedTips(resolvedWeek);
+  const { tips: personalizedTips, loading: tipsLoading, refreshDebounced } = usePersonalizedTips(resolvedWeek);
   const topTip = personalizedTips[0];
+  const hydrateMood = useMoodStore((s) => s.hydrate);
+  const hydrateSymptoms = useSymptomsStore((s) => s.hydrate);
 
   useEffect(() => {
     hydrateProfile();
     hydrateContent();
-  }, [hydrateProfile, hydrateContent]);
+    hydrateMood();
+    hydrateSymptoms();
+  }, [hydrateProfile, hydrateContent, hydrateMood, hydrateSymptoms]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      hydrateMood();
+      hydrateSymptoms();
+      refreshDebounced({ silent: true });
+    }, [hydrateMood, hydrateSymptoms, refreshDebounced])
+  );
 
   const styles = StyleSheet.create({
     scroll: { flex: 1 },

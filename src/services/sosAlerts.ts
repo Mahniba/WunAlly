@@ -88,7 +88,7 @@ export async function triggerSosAlert(
 export async function callFirstContact(contacts: EmergencyContact[]): Promise<boolean> {
   const first = contacts[0];
   if (!first?.phone) return false;
-  const tel = `tel:${first.phone}`;
+  const tel = `tel:${first.phone.replace(/\s/g, '')}`;
   const can = await Linking.canOpenURL(tel);
   if (!can) return false;
   await Linking.openURL(tel);

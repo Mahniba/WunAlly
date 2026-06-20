@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useProfileStore, useOnboardingStore, useAuthStore } from '../store';
 import { useLanguageStore } from '../store/useLanguageStore';
@@ -42,16 +43,24 @@ export function RootNavigator() {
 
   useEffect(() => {
     (async () => {
-      await hydrateLanguage();
-      await hydrateOnboarding();
-      await hydrateContent();
-      await hydrateAuth();
-      await hydrateProfile();
+      await Promise.all([
+        hydrateLanguage(),
+        hydrateOnboarding(),
+        hydrateContent(),
+        hydrateAuth(),
+        hydrateProfile(),
+      ]);
       setHydrated(true);
     })();
   }, [hydrateLanguage, hydrateOnboarding, hydrateProfile, hydrateAuth, hydrateContent]);
 
-  if (!hydrated) return null;
+  if (!hydrated) {
+    return (
+      <View style={bootStyles.container}>
+        <ActivityIndicator size="large" color={colors.coral} />
+      </View>
+    );
+  }
 
   // 1) Language -> 2) Onboarding -> 3) Auth -> 4) ProfileCreate -> 5) Main
   const showLanguage = languageChosen !== true;
@@ -103,3 +112,12 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+const bootStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+});

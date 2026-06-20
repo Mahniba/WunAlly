@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
-import { PrimaryButton, SecondaryButton, KeyboardModal } from './index';
+import { KeyboardModal } from './KeyboardModal';
+import { PrimaryButton } from './PrimaryButton';
+import { SecondaryButton } from './SecondaryButton';
 import { getSymptomReminderTime, setSymptomReminderTime } from '../services/storage';
 import { scheduleDailyReminder } from '../services/notifications';
 import { colors } from '../theme';

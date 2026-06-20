@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { ScreenContainer, ScreenHeader, WeekProgress } from '../components';
+import { ScreenContainer, ScreenHeader, WeekProgress, HealthContextCard } from '../components';
 import { getWeekInfo, getTrimesterLabel } from '../utils/weekData';
 import { getTrimesterExpectation } from '../utils/trimesterData';
 import { useProfileStore } from '../store/useProfileStore';
@@ -99,6 +99,7 @@ export function TrackingScreen() {
         <View style={{ marginBottom: s(16) }}>
           <WeekProgress week={info.week} />
         </View>
+        <HealthContextCard />
         <TouchableOpacity
           style={styles.expandableCard}
           onPress={() => setExpandedThisWeek((v) => !v)}

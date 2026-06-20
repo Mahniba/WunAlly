@@ -36,21 +36,21 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   setProfile: (profile) => set({ profile: profile ?? null }),
 
   hydrate: async () => {
-    if (await hasAccessToken()) {
-      await get().syncFromApi();
-      return;
-    }
-
     const raw = await getStoredProfile();
     if (raw) {
       try {
-        const profile = JSON.parse(raw) as UserProfile;
-        set({ profile });
+        set({ profile: JSON.parse(raw) as UserProfile });
       } catch {
         set({ profile: null });
       }
     } else {
       set({ profile: null });
+    }
+
+    if (await hasAccessToken()) {
+      void get().syncFromApi().catch((error) => {
+        console.warn('Background profile sync failed:', error);
+      });
     }
   },
 

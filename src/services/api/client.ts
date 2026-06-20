@@ -16,6 +16,27 @@ export interface RequestOptions {
   skipRefresh?: boolean;
 }
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new TypeError('Network request timed out');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 let refreshPromise: Promise<string | null> | null = null;
 
 async function getAccessToken(): Promise<string | null> {
@@ -44,7 +65,7 @@ async function refreshAccessToken(): Promise<string | null> {
     if (!refresh) return null;
 
     try {
-      const res = await fetch(`${getApiBaseUrl()}/auth/token/refresh/`, {
+      const res = await fetchWithTimeout(`${getApiBaseUrl()}/auth/token/refresh/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ refresh }),
@@ -105,7 +126,7 @@ export async function apiRequest<T>(
   }
 
   const doFetch = async (authHeaders: Record<string, string>) => {
-    return fetch(url, {
+    return fetchWithTimeout(url, {
       method,
       headers: { ...headers, ...authHeaders },
       body: body !== undefined ? JSON.stringify(body) : undefined,
