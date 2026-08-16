@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "wunally",
+    "name": "WunAlly",
     "slug": "wunally",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,6 +18,9 @@
       }
     },
     "android": {
+      "package": "com.wunally.app",
+      "versionCode": 2,
+      "usesCleartextTraffic": true,
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

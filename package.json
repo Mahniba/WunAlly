@@ -5,9 +5,12 @@
   "scripts": {
     "start": "expo start",
     "start:clear": "expo start -c",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "prebuild:android": "expo prebuild --platform android --clean",
+    "build:apk": "expo run:android --variant release",
+    "build:apk:cloud": "eas build -p android --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
